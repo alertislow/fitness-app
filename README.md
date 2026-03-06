@@ -108,7 +108,7 @@ After running backend:
 
 ### 1️⃣ Clone the project
 
-    git clone https://github.com/yourname/fitness-tracker.git
+    git clone https://github.com/alertislow/fitness-tracker.git
 
 ------------------------------------------------------------------------
 
@@ -157,5 +157,4 @@ Coming soon.
 
 ## 👨‍💻 Author
 
-Created by **Fitness Coach × Developer**\
-Building AI-powered fitness tools.
+Created by **Glenn Kuo**
