@@ -1,96 +1,178 @@
+# Fitness Tracker App
 
-# Fitness Tracker (React + FastAPI)
+A full-stack fitness tracking web application built with **React + FastAPI**.  
+Users can record workouts, view exercises, and write training notes.
 
-A starter project for a workout tracking web app.
+---
 
-## Run Backend
+## 🚀 Features
 
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
+### User
+- View exercise list
+- Record workouts
+- Write training notes
+- Track workout history
 
-Backend runs at:
-http://127.0.0.1:8000
+### Admin
+- Manage exercise database
+- Add / Edit / Delete exercises
+- Upload exercise descriptions and tips
 
-API docs:
+---
+
+## 🧠 Tech Stack
+
+### Frontend
+- React
+- JavaScript
+- Fetch API
+- CSS
+
+### Backend
+- FastAPI
+- SQLAlchemy
+- SQLite
+- Uvicorn
+
+### Tools
+- Git / GitHub
+- VSCode
+- Swagger API Docs
+
+---
+
+## 🏗 System Architecture
+
+Frontend (React)
+↓
+API Request (Fetch)
+↓
+FastAPI Backend
+↓
+SQLAlchemy ORM
+↓
+SQLite Database
+
+
+---
+
+## 📂 Project Structure
+
+
+fitness-tracker
+│
+├── frontend
+│ ├── src
+│ │ ├── pages
+│ │ │ ├── ExerciseList.jsx
+│ │ │ └── Exercises.jsx
+│ │ ├── App.jsx
+│ │ └── main.jsx
+│
+├── backend
+│ ├── app
+│ │ ├── main.py
+│ │ ├── models.py
+│ │ ├── schemas.py
+│ │ └── database.py
+│
+├── README.md
+└── .gitignore
+
+
+---
+
+## 📡 API Documentation
+
+FastAPI automatically generates API docs.
+
+After running backend:
+
+
 http://127.0.0.1:8000/docs
 
-## Run Frontend
 
-```bash
+Available APIs:
+
+### Exercises
+- `GET /exercises`
+- `POST /exercises`
+- `DELETE /exercises/{id}`
+
+### Workouts
+- `GET /workouts`
+- `POST /workouts`
+
+### Notes
+- `GET /notes`
+- `POST /notes`
+
+---
+
+## ⚙️ Local Development
+
+### 1️⃣ Clone project
+
+
+git clone https://github.com/yourname/fitness-tracker.git
+
+
+---
+
+### 2️⃣ Run Backend
+
+
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+
+
+Backend API:
+
+
+http://127.0.0.1:8000
+
+
+---
+
+### 3️⃣ Run Frontend
+
+
 cd frontend
 npm install
 npm run dev
-```
+
+
+Frontend:
+
+
+http://localhost:5173
+
 
 ---
 
-# System Architecture
+## 📸 Screenshots
 
-```mermaid
-flowchart LR
-
-User[Mobile / Browser]
-User --> React
-
-React[React + Tailwind Frontend]
-
-React -->|REST API| FastAPI
-
-FastAPI[FastAPI Backend]
-
-FastAPI --> DB[(SQLite / PostgreSQL)]
-
-FastAPI --> Storage[Image Storage]
-```
+(coming soon)
 
 ---
 
-# Database ERD
+## 🔮 Future Features
 
-```mermaid
-erDiagram
+- User authentication (JWT login)
+- Admin dashboard
+- Workout calendar
+- Exercise images
+- Mobile responsive UI
+- AI exercise analysis
 
-USERS {
-  int id
-  string email
-  string password
-  string role
-}
+---
 
-BODY_PARTS {
-  int id
-  string name
-}
+## 👨‍💻 Author
 
-EXERCISES {
-  int id
-  string name
-  int body_part_id
-  string description
-}
+Created by Glenn Kuo
 
-WORKOUTS {
-  int id
-  int user_id
-  int exercise_id
-  int sets
-  int reps
-  int weight
-}
-
-NOTES {
-  int id
-  int user_id
-  string content
-}
-
-USERS ||--o{ WORKOUTS : records
-USERS ||--o{ NOTES : writes
-
-BODY_PARTS ||--o{ EXERCISES : contains
-
-EXERCISES ||--o{ WORKOUTS : used_in
-```
+Fitness Coach × Developer  
+Building AI-powered fitness tools.

@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Node / React
+node_modules/
+dist/
+build/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Environment variables
+.env
