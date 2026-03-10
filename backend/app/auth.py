@@ -6,6 +6,7 @@ from jose import jwt
 from datetime import datetime, timedelta
 from .database import SessionLocal, engine
 from .models import Base, User
+from fastapi.middleware.cors import CORSMiddleware
 
 # 建立資料表
 Base.metadata.create_all(bind=engine)
@@ -54,3 +55,11 @@ def login(user: LoginSchema, db: Session = Depends(get_db)):
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     token = jwt.encode({"sub": str(db_user.id), "exp": expire}, SECRET_KEY, algorithm=ALGORITHM)
     return {"access_token": token, "token_type": "bearer"}
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
