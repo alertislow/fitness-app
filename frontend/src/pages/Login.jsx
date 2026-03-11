@@ -28,7 +28,7 @@ export default function Login() {
     <div style={{ maxWidth: "400px", margin: "50px auto", textAlign: "center" }}>
       <h1>Login</h1>
       <form onSubmit={handleLogin}>
-        <input
+        <input style={{margin: "10px auto"}}
           type="email"
           placeholder="Email"
           value={email}
@@ -36,7 +36,7 @@ export default function Login() {
           required
         />
         <br />
-        <input
+        <input style={{margin: "10px auto"}}
           type="password"
           placeholder="Password"
           value={password}
@@ -44,8 +44,9 @@ export default function Login() {
           required
         />
         <br />
-        <button type="submit">Login</button>
+        <button type="submit" style={{ margin: "10px auto" }}>Login</button>
       </form>
+      <button onClick={() => navigate('/register')} style={{ margin: "10px auto" }}>Register</button>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
