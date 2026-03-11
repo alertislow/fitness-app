@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from .database import SessionLocal, engine
 from .models import Base, User
 from fastapi.middleware.cors import CORSMiddleware
-
+from . import schemas
 
 # 建立資料表
 Base.metadata.create_all(bind=engine)
@@ -18,6 +18,9 @@ SECRET_KEY = "YOUR_SECRET_KEY"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
+router = APIRouter()
+
+# 密碼加密設定
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # CORS設定
@@ -46,35 +49,44 @@ class LoginSchema(BaseModel):
     password: str
 
 # 註冊
-@app.post("/register")
-def register(user: UserCreate, db: Session = Depends(get_db)):
+@router.post("/register")
+def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     hashed_pwd = pwd_context.hash(user.password)
-    db_user = User(email=user.email, password=hashed_pwd)
+    db_user = User(email=user.email, password=hashed_pwd, role=user.role) # 使用者註冊時可以指定角色，預設為"user"
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return {"id": db_user.id, "email": db_user.email}
+    # return {"id": db_user.id, "email": db_user.email, "role": db_user.role}
+    return db_user  # 返回完整的用戶對象，包括角色信息
 
 # 登入
-@app.post("/login")
+@router.post("/login")
 def login(user: LoginSchema, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not pwd_context.verify(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    token = jwt.encode({"sub": str(db_user.id), "exp": expire}, SECRET_KEY, algorithm=ALGORITHM)
+    
+    # 在JWT中加入角色信息
+    payload = {
+        "sub": str(db_user.id),
+        "exp": expire,
+        "role": db_user.role  
+    }
+
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return {"access_token": token, "token_type": "bearer"}
 
 # 取得所有會員
-@app.get("/users")
+@router.get("/users")
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
     return users
 
 
 # 刪除會員
-@app.delete("/users/{user_id}")
+@router.delete("/users/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
