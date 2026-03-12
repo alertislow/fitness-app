@@ -17,7 +17,7 @@ export default function Login() {
       });
       localStorage.setItem("token", res.data.access_token);
       navigate("/dashboard");
-      console.log(email, password);
+      // console.log(email, password);
     } catch (err) {
       setError("Invalid email or password");
       console.error(err);

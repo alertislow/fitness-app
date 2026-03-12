@@ -2,13 +2,13 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 const exerciseData = {
-  1: ["Bench Press", "Incline Dumbbell Press", "Chest Fly"],
-  2: ["Squat", "Leg Press", "Leg Extension"],
-  3: ["Pull Up", "Lat Pulldown", "Barbell Row"],
-  4: ["Shoulder Press", "Lateral Raise", "Rear Delt Fly"],
-  5: ["Barbell Curl", "Hammer Curl"],
-  6: ["Triceps Pushdown", "Skullcrusher"],
-  7: ["Plank", "Crunch", "Leg Raise"]
+  1: ["槓鈴臥推", "上斜啞鈴推舉", "蝴蝶機夾胸"],
+  2: ["深蹲", "腿推", "腿屈伸", "硬舉"],
+  3: ["杠鈴划船","滑輪下拉","引體向上" ],
+  4: ["槓鈴肩推", "側平舉", "後三角肌飛鳥"],
+  5: ["杠鈴彎舉", "錘式彎舉"],
+  6: ["cable 三頭下壓", "仰臥肱三頭伸展"],
+  7: ["棒式", "卷腹", "斜板抬腿"]
 };
 
 export default function ExerciseList() {
