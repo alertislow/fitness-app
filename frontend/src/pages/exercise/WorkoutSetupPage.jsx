@@ -6,8 +6,9 @@ export default function WorkoutSetupPage() {
   const { name } = useParams();
   const navigate = useNavigate();
 
-  const storageKey = `workout_${name}`;
+  const storageKey = `workout_${name}`;  // 每個動作獨立的儲存鍵
 
+  // 預設值
   const [sets, setSets] = useState(5);
   const [reps, setReps] = useState(10);
   const [weight, setWeight] = useState(0);
