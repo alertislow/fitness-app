@@ -1,3 +1,5 @@
+// 運動timer，舊版目前保留，後續可重構
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 

@@ -2,13 +2,13 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const bodyParts = [
-  { id: 1, name: "Chest" },
-  { id: 2, name: "Legs" },
-  { id: 3, name: "Back" },
-  { id: 4, name: "Shoulders" },
-  { id: 5, name: "Biceps" },
-  { id: 6, name: "Triceps" },
-  { id: 7, name: "Core" }
+  { id: 1, name: "胸" },
+  { id: 2, name: "腿" },
+  { id: 3, name: "背" },
+  { id: 4, name: "肩" },
+  { id: 5, name: "二頭" },
+  { id: 6, name: "三頭" },
+  { id: 7, name: "核心" }
 ];
 
 export default function BodyPartList() {

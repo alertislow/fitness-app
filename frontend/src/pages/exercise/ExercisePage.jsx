@@ -1,3 +1,5 @@
+// 運動設定頁面，從 ExerciseList 點選後進入 ， 但是舊版，目前沒用到，先保留
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 

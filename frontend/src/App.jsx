@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 // import ExerciseHome from "./pages/exercise/ExerciseHome";
 import BodyPartList from "./pages/exercise/BodyPartList";
 import ExerciseList from "./pages/exercise/ExerciseList";
+import WorkoutSetupPage from "./pages/exercise/WorkoutSetupPage";
 
 export default function App(){
   return (
@@ -19,6 +20,7 @@ export default function App(){
         {/* <Route path="/exercise" element={<ExerciseHome />} /> */}
         <Route path="/exercise/body-part" element={<BodyPartList />} />
         <Route path="/exercise/body-part/:id" element={<ExerciseList />} />
+        <Route path="/exercise/workout/:name" element={<WorkoutSetupPage />} /> 
       </Routes>
     </BrowserRouter> 
   )
