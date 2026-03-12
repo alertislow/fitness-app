@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 
-import ExerciseHome from "./pages/exercise/ExerciseHome";
+// import ExerciseHome from "./pages/exercise/ExerciseHome";
 import BodyPartList from "./pages/exercise/BodyPartList";
 
 export default function App(){
@@ -16,7 +16,7 @@ export default function App(){
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/exercise" element={<ExerciseHome />} />
+        {/* <Route path="/exercise" element={<ExerciseHome />} /> */}
         <Route path="/exercise/body-part" element={<BodyPartList />} />
       </Routes>
     </BrowserRouter> 

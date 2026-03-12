@@ -5,7 +5,7 @@ export default function UserDashboard() {
   const navigate = useNavigate();
 
   const goToExercise = () => {
-    navigate("/exercise");
+    navigate("/exercise/body-part");
   };
 
   return (
@@ -23,7 +23,7 @@ export default function UserDashboard() {
         <h2>Exercise</h2>
         <p>Start your workout today!</p>
 
-        <button onClick={() => navigate("/exercise")}>
+        <button onClick={() => navigate("/exercise/body-part")}>
           Start Workout
         </button>
       </div>
