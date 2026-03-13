@@ -39,7 +39,7 @@ export default function UserDashboard() {
         <h2>Exercise</h2>
         <p>Start your workout today!</p>
 
-        <button onClick={() => navigate("/exercise/body-part")}>
+        <button onClick={() => navigate("/exercise/body-part")} style={{padding:"10px 20px"}}>
           Start Workout
         </button>
       </div>

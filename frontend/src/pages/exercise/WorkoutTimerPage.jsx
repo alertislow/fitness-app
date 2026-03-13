@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import tickSound from "/sounds/tick.mp3";
+import startSound from "/sounds/swoosh-sound-effects.mp3";
+import restSound from "/sounds/swoosh-2.mp3";
+import finishSound from "/sounds/bababoi.mp3";
 
 export default function WorkoutTimerPage(){
 
@@ -22,6 +26,11 @@ export default function WorkoutTimerPage(){
   const userSettings = JSON.parse(localStorage.getItem("user_settings")) || {};
   const skipLastRest = userSettings.skipLastRest ?? true;
 
+  const tick = new Audio(tickSound);
+  const start = new Audio(startSound);
+  const rest = new Audio(restSound);
+  const finish = new Audio(finishSound);
+
   function formatTime(sec){
   const m = Math.floor(sec/60)
   const s = sec%60
@@ -31,6 +40,9 @@ export default function WorkoutTimerPage(){
   useEffect(()=>{
     const timer = setInterval(()=>{
       setTimeLeft(prev=>{
+        if (phase === "prepare" && prev <= 3 && prev > 0) {
+          tick.play();
+        }
         if(prev<=1){
           nextPhase()
           return 0
@@ -43,15 +55,18 @@ export default function WorkoutTimerPage(){
 
   function nextPhase(){
     if(phase==="prepare"){
+      start.play()
       setPhase("work")
       setTimeLeft(workTime)
     }
     else if(phase==="work"){
       // 判斷最後一組 work
       if (currentSet === totalSets && skipLastRest) {
-      setPhase("done"); // 直接結束，不進 rest
-      return;
-    }
+        finish.play();
+        setPhase("done"); // 直接結束，不進 rest
+        return;
+      }
+      rest.play()
       setPhase("rest")
       setTimeLeft(restTime)
     }
@@ -62,80 +77,81 @@ export default function WorkoutTimerPage(){
         return
       }
       // 其他組休息結束，進入下一組
+      start.play()
       setCurrentSet(prev => prev + 1)
       setPhase("work")
       setTimeLeft(workTime)
     }
   }
 
-function skip(){
-  nextPhase()
+  function skip(){
+    nextPhase()
+    }
+
+  function endWorkout(){
+  navigate("/dashboard")
   }
 
-function endWorkout(){
-navigate("/dashboard")
-}
-
-if(phase==="done"){
-return(
-<div style={{textAlign:"center",padding:"40px"}}>
-<h1>Workout Complete 🎉</h1>
-<button onClick={()=>navigate("/dashboard")}>
-Back to Dashboard
-</button>
-</div>
-)
-}
+  if(phase==="done"){
+   return(
+    <div style={{textAlign:"center",padding:"40px"}}>
+    <h1>Workout Complete 🎉</h1>
+    <button onClick={()=>navigate("/dashboard")} style={{padding:"10px 20px"}}>
+    Back to Dashboard
+    </button>
+    </div>
+   )
+  }
 
 const circleSize = 220
 
 return(
 
-<div style={{textAlign:"center",padding:"40px"}}>
+  <div style={{textAlign:"center",padding:"40px"}}>
 
-<h1>{name}</h1>
+    <h1>{name}</h1>
 
-<h2>Set {currentSet}/{totalSets}</h2>
+    <h2>Set {currentSet}/{totalSets}</h2>
 
-<div style={{marginBottom:"10px"}}>
+    <div style={{marginBottom:"10px"}}>
 
-<strong>{weight} kg</strong>  
-<br/>
-{reps} reps
+    <strong>{weight} kg</strong>  
+    <br/>
+    {reps} reps
 
-</div>
+    </div>
 
-<h3>{phase.toUpperCase()}</h3>
+    <h3>{phase.toUpperCase()}</h3>
 
-<div style={{
-width:circleSize,
-height:circleSize,
-borderRadius:"50%",
-border:"10px solid #4CAF50",
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-fontSize:"40px",
-margin:"30px auto"
-}}>
+    <div style={{
+    width:circleSize,
+    height:circleSize,
+    borderRadius:"50%",
+    border:"10px solid #4CAF50",
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center",
+    fontSize:"40px",
+    margin:"30px auto"
+    }}>
 
-{formatTime(timeLeft)}
+    {formatTime(timeLeft)}
 
-</div>
+    </div>
 
-<div style={{display:"flex",gap:"20px",justifyContent:"center"}}>
+    <div style={{display:"flex",gap:"20px",justifyContent:"center", flexDirection:"column", alignItems:"center"}}>
 
-<button onClick={skip}>
-Skip
-</button>
+      <button onClick={skip} style={{padding:"10px 20px"}}>
+      Skip
+      </button>
 
-<button onClick={endWorkout}>
-End Workout
-</button>
+      <button onClick={endWorkout} style={{padding:"10px 20px"}}>
+      End Workout
+      </button>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
 )
 
