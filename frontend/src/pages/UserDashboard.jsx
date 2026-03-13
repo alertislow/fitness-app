@@ -27,13 +27,13 @@ export default function UserDashboard() {
   return (
     <div style={{ padding: "20px" }}>
       <h1>User Dashboard</h1>
-
+      {/* Exercise */}
       <div
         style={{
           border: "1px solid #ddd",
           padding: "20px",
           borderRadius: "10px",
-          width: "250px",
+          marginBottom:"20px"
         }}
       >
         <h2>Exercise</h2>
@@ -43,6 +43,23 @@ export default function UserDashboard() {
           Start Workout
         </button>
       </div>
+
+      {/* WorkOut History */}
+      <div style={{
+        border:"1px solid #ddd",
+        padding:"20px",
+        borderRadius:"10px",
+        marginBottom:"20px"
+      }}>
+        <h2>Workout History</h2>
+        <p>View your past workouts</p>
+
+        <button onClick={()=>navigate("/workout-history")} style={{padding:"10px 20px"}}>
+          View History
+        </button>
+      </div>
+
+      {/* Setting */}
       <div style={{
         border: "1px solid #ddd",
         padding: "20px",
