@@ -3,76 +3,74 @@ import { useParams, useNavigate } from "react-router-dom";
 
 export default function WorkoutTimerPage(){
 
-const { name } = useParams()
-const navigate = useNavigate()
+  const { name } = useParams()
+  const navigate = useNavigate()
 
-const settings = JSON.parse(localStorage.getItem(`workout_${name}`))
+  const settings = JSON.parse(localStorage.getItem(`workout_${name}`))
 
-const totalSets = settings?.sets || 5
-const reps = settings?.reps || 10
-const weight = settings?.weight || 0
-const workTime = settings?.workTime || 90
-const restTime = settings?.restTime || 120
+  const totalSets = settings?.sets || 5
+  const reps = settings?.reps || 10
+  const weight = settings?.weight || 0
+  const workTime = settings?.workTime || 90
+  const restTime = settings?.restTime || 120
 
-const [phase,setPhase] = useState("prepare")
-const [timeLeft,setTimeLeft] = useState(3)
-const [currentSet,setCurrentSet] = useState(1)
+  const [phase,setPhase] = useState("prepare")
+  const [timeLeft,setTimeLeft] = useState(3)
+  const [currentSet,setCurrentSet] = useState(1)
 
-function formatTime(sec){
-const m = Math.floor(sec/60)
-const s = sec%60
-return `${m}:${s.toString().padStart(2,"0")}`
-}
+  // 讀取是否跳過最後一組休息的設定
+  const userSettings = JSON.parse(localStorage.getItem("user_settings")) || {};
+  const skipLastRest = userSettings.skipLastRest ?? true;
 
-useEffect(()=>{
+  function formatTime(sec){
+  const m = Math.floor(sec/60)
+  const s = sec%60
+  return `${m}:${s.toString().padStart(2,"0")}`
+  }
 
-const timer = setInterval(()=>{
+  useEffect(()=>{
+    const timer = setInterval(()=>{
+      setTimeLeft(prev=>{
+        if(prev<=1){
+          nextPhase()
+          return 0
+        } 
+        return prev-1
+      })
+    },1000)
+    return () => clearInterval(timer)
+}, [phase, currentSet])
 
-setTimeLeft(prev=>{
-
-if(prev>1) return prev-1
-
-nextPhase()
-return 0
-
-})
-
-},1000)
-
-return ()=>clearInterval(timer)
-
-},[phase])
-
-function nextPhase(){
-
-if(phase==="prepare"){
-setPhase("work")
-setTimeLeft(workTime)
-}
-
-else if(phase==="work"){
-setPhase("rest")
-setTimeLeft(restTime)
-}
-
-else if(phase==="rest"){
-
-if(currentSet>=totalSets){
-setPhase("done")
-return
-}
-
-setCurrentSet(currentSet+1)
-setPhase("work")
-setTimeLeft(workTime)
-
-}
-
-}
+  function nextPhase(){
+    if(phase==="prepare"){
+      setPhase("work")
+      setTimeLeft(workTime)
+    }
+    else if(phase==="work"){
+      // 判斷最後一組 work
+      if (currentSet === totalSets && skipLastRest) {
+      setPhase("done"); // 直接結束，不進 rest
+      return;
+    }
+      setPhase("rest")
+      setTimeLeft(restTime)
+    }
+    else if(phase==="rest"){
+      // 正常 rest 結束，進下一組
+      if(currentSet>=totalSets){
+        setPhase("done")
+        return
+      }
+      // 其他組休息結束，進入下一組
+      setCurrentSet(prev => prev + 1)
+      setPhase("work")
+      setTimeLeft(workTime)
+    }
+  }
 
 function skip(){
-nextPhase()
-}
+  nextPhase()
+  }
 
 function endWorkout(){
 navigate("/dashboard")
