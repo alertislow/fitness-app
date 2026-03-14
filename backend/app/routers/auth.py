@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from app.database import SessionLocal, engine
 from app.models import Base, User
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
+from .auth import SECRET_KEY, ALGORITHM  # 你的 JWT secret/algorithm
 from .. import schemas
 
 # 建立資料表
@@ -96,3 +98,19 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.delete(user)
     db.commit()
     return {"message": "User deleted"}
+
+# 使用JWT回傳當前用戶的 ID，供其他 API 使用
+security = HTTPBearer()
+
+def get_current_user_id(token=Depends(security)) -> int:
+    """
+    從 JWT token 解析 user_id
+    """
+    try:
+        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = int(payload.get("sub"))
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token: no user id")
+        return user_id
+    except jwt.JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
