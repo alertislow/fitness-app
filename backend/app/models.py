@@ -1,5 +1,5 @@
 
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, Date
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -33,7 +33,7 @@ class Workout(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    exercise_id = Column(Integer, ForeignKey("exercises.id"))
+    exercise_id = Column(Integer, ForeignKey("exercises.id"), nullable=True)  # exercise_id 可以為空，因爲有些訓練可能沒有對應的 exercise（例如自由訓練）   
     sets = Column(Integer)
     reps = Column(Integer)
     weight = Column(Integer)
@@ -45,3 +45,15 @@ class Note(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     content = Column(String)
+
+# workout history table, 包含日期、exercise、sets、reps、weight等資訊，讓使用者可以查看過去的訓練紀錄
+class WorkoutSet(Base):
+    __tablename__ = "workout_sets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer)
+    exercise = Column(String)
+    set_number = Column(Integer)
+    reps = Column(Integer)
+    weight = Column(Float)
+    date = Column(Date)

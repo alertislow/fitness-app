@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta
-from .database import SessionLocal, engine
-from .models import Base, User
+from app.database import SessionLocal, engine
+from app.models import Base, User
 from fastapi.middleware.cors import CORSMiddleware
-from . import schemas
+from .. import schemas
 
 # 建立資料表
 Base.metadata.create_all(bind=engine)
@@ -22,6 +22,8 @@ router = APIRouter()
 
 # 密碼加密設定
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+app.include_router(router)  # 匯入 router，讓註冊、登入等功能成為 API 的一部分，而不是獨立的模組，（後續說要加的，若有bug要刪）
 
 # CORS設定
 app.add_middleware(

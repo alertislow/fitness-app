@@ -8,7 +8,7 @@ import BodyPartList from "./pages/exercise/BodyPartList";
 import ExerciseList from "./pages/exercise/ExerciseList";
 import WorkoutSetupPage from "./pages/exercise/WorkoutSetupPage";
 import WorkoutTimerPage from "./pages/exercise/WorkoutTimerPage";
-import WorkoutHistoryPage from "./pages/WorkoutHistoryPage";
+import WorkoutHistoryPage from "./pages/exercise/WorkoutHistoryPage";
 
 export default function App(){
   return (

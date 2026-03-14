@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getWorkoutHistory } from "../../api/workoutApi.js"
 
+
+  async function loadHistory(){
+    const data = await getWorkoutHistory()
+    setHistory(data)
+}
 export default function WorkoutHistoryPage(){
 
   const navigate = useNavigate()

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 class ExerciseCreate(BaseModel):
     name: str
@@ -7,9 +8,9 @@ class ExerciseCreate(BaseModel):
     body_part_id: int
 
 class WorkoutCreate(BaseModel):
-    user_id: int
-    exercise_id: int
-    sets: int
+    user_id: Optional[int] = None
+    exercise: str
+    set_number: int
     reps: int
     weight: int
 

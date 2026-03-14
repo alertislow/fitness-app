@@ -4,11 +4,13 @@ import tickSound from "/sounds/tick.mp3";
 import startSound from "/sounds/swoosh-sound-effects.mp3";
 import restSound from "/sounds/swoosh-2.mp3";
 import finishSound from "/sounds/bababoi.mp3";
+import { saveWorkoutSet } from "../../api/workoutApi.js"
 
 export default function WorkoutTimerPage(){
 
   const { name } = useParams()
   const navigate = useNavigate()
+  const token = localStorage.getItem("token");
 
   const settings = JSON.parse(localStorage.getItem(`workout_${name}`))
 
@@ -30,7 +32,17 @@ export default function WorkoutTimerPage(){
   const start = new Audio(startSound);
   const rest = new Audio(restSound);
   const finish = new Audio(finishSound);
+  
 
+  // 存入 workout history
+  async function saveSet(){
+    await saveWorkoutSet({
+      exercise:name,
+      weight:weight,
+      reps:reps,
+      set_number:currentSet
+    })
+  }
   function formatTime(sec){
   const m = Math.floor(sec/60)
   const s = sec%60
@@ -38,6 +50,9 @@ export default function WorkoutTimerPage(){
   }
 
   useEffect(()=>{
+    if (!token) {
+      navigate("/login");
+    }
     const timer = setInterval(()=>{
       setTimeLeft(prev=>{
         if (phase === "prepare" && prev <= 3 && prev > 0) {
@@ -60,6 +75,8 @@ export default function WorkoutTimerPage(){
       setTimeLeft(workTime)
     }
     else if(phase==="work"){
+      // 完成一組 → 存到後端
+      saveSet()
       // 判斷最後一組 work
       if (currentSet === totalSets && skipLastRest) {
         finish.play();
