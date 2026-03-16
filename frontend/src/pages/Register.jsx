@@ -12,7 +12,7 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://127.0.0.1:8000/register", {
+      await axios.post("http://127.0.0.1:8000/auth/register", {
         email,
         password
       });
