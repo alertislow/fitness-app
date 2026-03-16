@@ -1,27 +1,22 @@
-from fastapi import FastAPI, Depends, HTTPException, APIRouter
+from fastapi import Depends, HTTPException, APIRouter
 from sqlalchemy.orm import Session
 from datetime import datetime
-from app.database import SessionLocal
-from app.models import WorkoutSet
+from app.database import get_db
 from app.schemas import WorkoutCreate
+from app.models import WorkoutSet
+from app.core.security import get_current_user_id # JWT function
 
-router = APIRouter(
-    prefix="/workout",
-    tags=["workout"]
-)
-# DB dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter(prefix="/workout",tags=["workout"])
 
 # POST /workout/set
 @router.post("/set")
-def save_set(data: WorkoutCreate, db: Session = Depends(get_db)):
+def save_set(
+    data: WorkoutCreate, 
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id) # 從 JWT token 獲取當前用戶的 ID
+    ): 
     workout = WorkoutSet(
-        user_id = data.user_id,  # 這裡需要從前端傳入 user_id，或者從認證系統中獲取當前用戶的 ID
+        user_id = current_user_id, #自動帶uer_id，不從前端傳入
         exercise=data.exercise,
         set_number=data.set_number,
         reps=data.reps,
@@ -37,13 +32,21 @@ def save_set(data: WorkoutCreate, db: Session = Depends(get_db)):
 
 # GET /workout/history
 @router.get("/history")
-def get_history(db: Session = Depends(get_db)):
-    workouts = db.query(WorkoutSet).all()
-
+def get_history( 
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id) # 從 JWT token 獲取當前用戶的 ID
+):
+    workouts = db.query(WorkoutSet).filter(WorkoutSet.user_id == current_user_id).all()
+    # print("current_user_id:", current_user_id)
     return {
         "total": len(workouts),
         "data": workouts
     }
+
+# @router.get("/history")
+# def get_history(db: Session = Depends(get_db)):
+#     workouts = db.query(WorkoutSet).all()
+#     return workouts
 
 
 # PUT /workout/set/{id}

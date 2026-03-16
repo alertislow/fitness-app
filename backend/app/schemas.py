@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+# from datetime import datetime
 
 class ExerciseCreate(BaseModel):
     name: str
@@ -12,7 +12,7 @@ class WorkoutCreate(BaseModel):
     exercise: str
     set_number: int
     reps: int
-    weight: int
+    weight: float
 
 class NoteCreate(BaseModel):
     user_id: int
@@ -22,3 +22,7 @@ class UserCreate(BaseModel):
     email: str
     password: str
     role: Optional[str] = "user"
+
+class LoginSchema(BaseModel):
+    email: str
+    password: str

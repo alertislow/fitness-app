@@ -1,7 +1,8 @@
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Float, Date
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime
+# from sqlalchemy.orm import relationship
 from .database import Base
+from datetime import datetime
 
 class User(Base):
     __tablename__ = "users"
@@ -31,12 +32,14 @@ class Exercise(Base):
 class Workout(Base):
     __tablename__ = "workouts"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    exercise_id = Column(Integer, ForeignKey("exercises.id"), nullable=True)  # exercise_id 可以為空，因爲有些訓練可能沒有對應的 exercise（例如自由訓練）   
+    # exercise_id = Column(Integer, ForeignKey("exercises.id"), nullable=True)  # exercise_id 可以為空，因爲有些訓練可能沒有對應的 exercise（例如自由訓練） 
+    exercise = Column(String)  
     sets = Column(Integer)
     reps = Column(Integer)
     weight = Column(Integer)
+    date = Column(DateTime, default=datetime.utcnow)
 
 
 class Note(Base):
@@ -56,4 +59,4 @@ class WorkoutSet(Base):
     set_number = Column(Integer)
     reps = Column(Integer)
     weight = Column(Float)
-    date = Column(Date)
+    date = Column(DateTime)

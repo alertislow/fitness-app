@@ -1,56 +1,21 @@
-from fastapi import FastAPI, Depends, HTTPException, APIRouter
-from pydantic import BaseModel
+from fastapi import Depends, HTTPException, APIRouter
+# from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta
-from app.database import SessionLocal, engine
-from app.models import Base, User
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer
-from .auth import SECRET_KEY, ALGORITHM  # 你的 JWT secret/algorithm
-from .. import schemas
 
-# 建立資料表
-Base.metadata.create_all(bind=engine)
+from app.database import get_db
+from app.models import User
+# from fastapi.security import HTTPBearer
+from app.core.security import SECRET_KEY, ALGORITHM # 你的 JWT secret/algorithm
+from app import schemas
 
-app = FastAPI(title="Fitness Auth API")
-
-SECRET_KEY = "YOUR_SECRET_KEY"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
-
-router = APIRouter()
-
+router = APIRouter(prefix="/auth", tags=["auth"])
 # 密碼加密設定
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-app.include_router(router)  # 匯入 router，讓註冊、登入等功能成為 API 的一部分，而不是獨立的模組，（後續說要加的，若有bug要刪）
-
-# CORS設定
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-# Pydantic Schemas
-class UserCreate(BaseModel):
-    email: str
-    password: str
-
-class LoginSchema(BaseModel):
-    email: str
-    password: str
 
 # 註冊
 @router.post("/register")
@@ -60,12 +25,11 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    # return {"id": db_user.id, "email": db_user.email, "role": db_user.role}
     return db_user  # 返回完整的用戶對象，包括角色信息
 
 # 登入
 @router.post("/login")
-def login(user: LoginSchema, db: Session = Depends(get_db)):
+def login(user: schemas.LoginSchema, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not pwd_context.verify(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -100,17 +64,17 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     return {"message": "User deleted"}
 
 # 使用JWT回傳當前用戶的 ID，供其他 API 使用
-security = HTTPBearer()
+# security = HTTPBearer()
 
-def get_current_user_id(token=Depends(security)) -> int:
-    """
-    從 JWT token 解析 user_id
-    """
-    try:
-        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = int(payload.get("sub"))
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token: no user id")
-        return user_id
-    except jwt.JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+# def get_current_user_id(token=Depends(security)) -> int:
+#     """
+#     從 JWT token 解析 user_id
+#     """
+#     try:
+#         payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+#         user_id = int(payload.get("sub"))
+#         if user_id is None:
+#             raise HTTPException(status_code=401, detail="Invalid token: no user id")
+#         return user_id
+#     except JWTError:
+#         raise HTTPException(status_code=401, detail="Invalid token")

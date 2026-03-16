@@ -10,7 +10,7 @@ export async function saveWorkoutSet(data){
     method:"POST",
     headers:{
       "Content-Type":"application/json",
-      Authorization:`Bearer ${token}`
+      "Authorization":`Bearer ${token}` // 從 localStorage 獲取 JWT token，並在 Authorization header 中帶上 Bearer token
     },
     body:JSON.stringify(data)
   })
@@ -25,7 +25,7 @@ export async function getWorkoutHistory(){
   }
   const res = await fetch(`${API_URL}/workout/history`,{
     headers:{
-    Authorization:`Bearer ${token}`
+    "Authorization":`Bearer ${token}`
     }
   })
   return res.json()
@@ -41,7 +41,7 @@ export async function updateWorkoutSet(id,data){
     method:"PUT",
     headers:{
     "Content-Type":"application/json",
-    Authorization:`Bearer ${token}`
+    "Authorization":`Bearer ${token}`
     },
     body:JSON.stringify(data)
   })
@@ -57,7 +57,7 @@ export async function deleteWorkoutSet(id){
   const res = await fetch(`${API_URL}/workout/set/${id}`,{
     method:"DELETE",
     headers:{
-    Authorization:`Bearer ${token}`
+    "Authorization":`Bearer ${token}`
     }
   })
   return res.json()
