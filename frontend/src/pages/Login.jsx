@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getToken,login } from "../api/authAPI";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -11,15 +11,10 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://127.0.0.1:8000/auth/login", {
-        email,
-        password,
-      });
-      localStorage.setItem("token", res.data.access_token);
+      await login(email, password); // 會自動存 token
       navigate("/dashboard");
-      // console.log(email, password);
     } catch (err) {
-      setError("Invalid email or password");
+      setError(err.message || "Login failed");
       console.error(err);
     }
   };
@@ -28,7 +23,8 @@ export default function Login() {
     <div style={{ maxWidth: "400px", margin: "50px auto", textAlign: "center" }}>
       <h1>Login</h1>
       <form onSubmit={handleLogin}>
-        <input style={{margin: "10px auto"}}
+        <input 
+          style={{margin: "10px auto"}}
           type="email"
           placeholder="Email"
           value={email}
@@ -36,7 +32,8 @@ export default function Login() {
           required
         />
         <br />
-        <input style={{margin: "10px auto"}}
+        <input 
+          style={{margin: "10px auto"}}
           type="password"
           placeholder="Password"
           value={password}

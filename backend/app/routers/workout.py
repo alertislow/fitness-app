@@ -43,11 +43,6 @@ def get_history(
         "data": workouts
     }
 
-# @router.get("/history")
-# def get_history(db: Session = Depends(get_db)):
-#     workouts = db.query(WorkoutSet).all()
-#     return workouts
-
 
 # PUT /workout/set/{id}
 @router.put("/set/{id}")
