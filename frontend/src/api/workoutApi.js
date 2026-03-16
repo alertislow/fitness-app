@@ -1,3 +1,9 @@
+//只放運動紀錄的 CRUD
+// saveWorkoutSet(data)
+// getWorkoutHistory()
+// updateWorkoutSet(id, data)
+// deleteWorkoutSet(id)
+
 const API_URL = "http://localhost:8000"
 // 新增儲存訓練紀錄的 API 呼叫
 export async function saveWorkoutSet(data){
