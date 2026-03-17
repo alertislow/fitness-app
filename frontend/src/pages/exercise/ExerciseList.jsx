@@ -20,7 +20,10 @@ export default function ExerciseList() {
 
   return (
     <div style={{ padding: "20px" }}>
-
+      {/* 返回按鈕 */}
+      <button onClick={() => navigate("/exercise/body-part")}>
+        ← Back
+      </button>
       <h1>Exercises</h1>
 
       {exercises.map((exercise, index) => (

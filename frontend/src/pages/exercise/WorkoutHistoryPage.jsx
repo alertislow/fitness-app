@@ -21,6 +21,10 @@ export default function WorkoutHistoryPage(){
 
   return (
     <div style={{padding:"20px"}}>
+      {/* 返回按鈕 */}
+      <button onClick={() => navigate("/dashboard")}>
+        ← Back
+      </button>
       <h1>Workout History</h1>
       {history.length === 0 && <p>No workouts yet</p>}
 
@@ -46,10 +50,6 @@ export default function WorkoutHistoryPage(){
           </div>
         </div>
       ))}
-
-      <button onClick={()=>navigate("/dashboard")} style={{padding:"10px 20px"}}>
-        Back
-      </button>
     </div>
   )
 }

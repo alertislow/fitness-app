@@ -21,7 +21,11 @@ export default function BodyPartList() {
 
   return (
     <div style={{ padding: "20px" }}>
-
+    {/* 返回按鈕 */}
+      <button onClick={() => navigate("/dashboard")}>
+        ← Back
+      </button>
+      
       <h1>Select Body Part</h1>
 
       <div style={{
