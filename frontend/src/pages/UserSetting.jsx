@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function UserSetting() {
@@ -6,10 +6,19 @@ export default function UserSetting() {
 
   // 預設為 true
   const [skipLastRest, setSkipLastRest] = useState(true);
-
+  
   const toggleSkipLastRest = () => {
-    setSkipLastRest(prev => !prev);
-  };
+      const newValue = !skipLastRest;
+      setSkipLastRest(newValue);
+      const settings = JSON.parse(localStorage.getItem("user_settings")) || {};
+      settings.skipLastRest = newValue;
+      localStorage.setItem("user_settings", JSON.stringify(settings));
+    };
+
+  useEffect(() => {
+    const settings = JSON.parse(localStorage.getItem("user_settings")) || {};
+    setSkipLastRest(settings.skipLastRest ?? true);
+  }, []);
 
   return (
     <div style={{ padding: "20px" }}>
