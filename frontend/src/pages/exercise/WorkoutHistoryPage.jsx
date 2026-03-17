@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getWorkoutHistory, updateWorkoutSet } from "../../api/workoutApi.js"
+import { getWorkoutHistory, updateWorkoutSet, deleteWorkoutSet } from "../../api/workoutApi.js"
 
 export default function WorkoutHistoryPage(){
   const navigate = useNavigate()
@@ -32,6 +32,7 @@ export default function WorkoutHistoryPage(){
     acc[date].push(item);
     return acc;
   }, {});
+  
 
    // 優化：編輯完成後直接更新單組資料
   const handleSave = async () => {
@@ -53,7 +54,65 @@ export default function WorkoutHistoryPage(){
       alert("Failed to update");
     }
   };
+  // 刪除訓練紀錄
+  const handleDelete = async (setToDelete) => {
+    if (!window.confirm("確定要刪除這組嗎？")) return;
+    try {
+      // 1️⃣ 先刪除
+      await deleteWorkoutSet(setToDelete.id);
 
+      // 2️⃣ 找出同一天 + 同 exercise 的資料
+      const sameGroup = history
+        .filter(
+          (item) =>
+            item.exercise === setToDelete.exercise &&
+            new Date(item.date).toLocaleDateString() ===
+              new Date(setToDelete.date).toLocaleDateString()
+        )
+        .sort((a, b) => a.set_number - b.set_number);
+
+      // 3️⃣ 找出被刪的是第幾組
+      const deletedSetNumber = setToDelete.set_number;
+
+      // 4️⃣ 將後面的 set_number -1
+      const needUpdate = sameGroup.filter(
+        (item) => item.set_number > deletedSetNumber
+      );
+
+      for (let item of needUpdate) {
+        await updateWorkoutSet(item.id, {
+          exercise: item.exercise,
+          set_number: item.set_number - 1, // 🔥 重排
+          weight: item.weight,
+          reps: item.reps,
+        });
+      }
+
+      // 5️⃣ 更新本地 state（不用重新 GET）
+      setHistory((prev) =>
+        prev
+          .filter((item) => item.id !== setToDelete.id) // 移除被刪的
+          .map((item) => {
+            if (
+              item.exercise === setToDelete.exercise &&
+              new Date(item.date).toLocaleDateString() ===
+                new Date(setToDelete.date).toLocaleDateString() &&
+              item.set_number > deletedSetNumber
+            ) {
+              return {
+                ...item,
+                set_number: item.set_number - 1,
+              };
+            }
+            return item;
+          })
+      );
+      setEditSet(null); // 關閉編輯視窗
+    } catch (err) {
+      console.error(err);
+      alert("Delete failed");
+    }
+  };
   return (
     <div style={{padding:"20px"}}>
       {/* 返回按鈕 */}
@@ -108,6 +167,8 @@ export default function WorkoutHistoryPage(){
                 {set.weight} kg × {set.reps}
               </div>
             </div>
+
+
           ))}
         </>
       )}
@@ -142,10 +203,27 @@ export default function WorkoutHistoryPage(){
               />
             </label>
           </div>
-          <button onClick={handleSave} style={{ marginRight: "10px" }}>
-            Save
-          </button>
-          <button onClick={() => setEditSet(null)}>Cancel</button>
+          <div style={{ display: "flex"}}>
+            <button onClick={handleSave} style={{ marginRight: "10px" }}>
+              Save
+            </button>
+            <button onClick={() => setEditSet(null)}>Cancel</button>
+            <button
+              onClick={() => handleDelete(editSet)}
+              style={{
+                marginLeft: "auto",
+                background: "red",
+                color: "white",
+                border: "none",
+                padding: "5px 10px",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Delete
+            </button>
+          </div>
+          
         </div>
       )}
     
