@@ -48,3 +48,19 @@ export async function register(email, password) {
 
   return res.json();
 }
+
+
+// ---------------------------
+// 登出
+// ---------------------------
+export function logoutAPI() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  return fetch(`${API_URL}/auth/logout`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  }).then(res => res.json());
+}

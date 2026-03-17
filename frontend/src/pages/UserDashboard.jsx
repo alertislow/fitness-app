@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import DashboardHeader from "../components/DashboardHeader"; // 頁首
 
 export default function UserDashboard() {
   const navigate = useNavigate();
@@ -25,56 +26,60 @@ export default function UserDashboard() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>User Dashboard</h1>
-      {/* Exercise */}
-      <div
-        style={{
+    <div>
+      {/* Header */}
+      <DashboardHeader />
+      <div style={{ padding: "20px" }}>
+        <h1>User Dashboard</h1>
+        {/* Exercise */}
+        <div
+          style={{
+            border: "1px solid #ddd",
+            padding: "20px",
+            borderRadius: "10px",
+            marginBottom:"20px"
+          }}
+        >
+          <h2>Exercise</h2>
+          <p>Start your workout today!</p>
+
+          <button onClick={() => navigate("/exercise/body-part")} style={{padding:"10px 20px"}}>
+            Start Workout
+          </button>
+        </div>
+
+        {/* WorkOut History */}
+        <div style={{
+          border:"1px solid #ddd",
+          padding:"20px",
+          borderRadius:"10px",
+          marginBottom:"20px"
+        }}>
+          <h2>Workout History</h2>
+          <p>View your past workouts</p>
+
+          <button onClick={()=>navigate("/workout-history")} style={{padding:"10px 20px"}}>
+            View History
+          </button>
+        </div>
+
+        {/* Setting */}
+        <div style={{
           border: "1px solid #ddd",
           padding: "20px",
           borderRadius: "10px",
-          marginBottom:"20px"
-        }}
-      >
-        <h2>Exercise</h2>
-        <p>Start your workout today!</p>
-
-        <button onClick={() => navigate("/exercise/body-part")} style={{padding:"10px 20px"}}>
-          Start Workout
-        </button>
-      </div>
-
-      {/* WorkOut History */}
-      <div style={{
-        border:"1px solid #ddd",
-        padding:"20px",
-        borderRadius:"10px",
-        marginBottom:"20px"
-      }}>
-        <h2>Workout History</h2>
-        <p>View your past workouts</p>
-
-        <button onClick={()=>navigate("/workout-history")} style={{padding:"10px 20px"}}>
-          View History
-        </button>
-      </div>
-
-      {/* Setting */}
-      <div style={{
-        border: "1px solid #ddd",
-        padding: "20px",
-        borderRadius: "10px",
-        marginTop: "20px"
-      }}>
-        <h2>Settings</h2>
-        <label>
-          <input
-            type="checkbox"
-            checked={skipLastRest}
-            onChange={toggleSkipLastRest}
-          />
-          Skip last rest period
-        </label>
+          marginTop: "20px"
+        }}>
+          <h2>Settings</h2>
+          <label>
+            <input
+              type="checkbox"
+              checked={skipLastRest}
+              onChange={toggleSkipLastRest}
+            />
+            Skip last rest period
+          </label>
+        </div>
       </div>
     </div>
   );

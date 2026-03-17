@@ -10,6 +10,7 @@ from app.models import User
 # from fastapi.security import HTTPBearer
 from app.core.security import SECRET_KEY, ALGORITHM # 你的 JWT secret/algorithm
 from app import schemas
+from app.core.security import get_current_user_id
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 # 密碼加密設定
@@ -62,3 +63,9 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.delete(user)
     db.commit()
     return {"message": "User deleted"}
+
+    # 登出
+@router.post("/logout")
+def logout(current_user_id: int = Depends(get_current_user_id)):
+# 這裡可以做 token 黑名單、紀錄登出時間等
+    return {"message": "Logged out successfully"}
