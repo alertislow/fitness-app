@@ -20,14 +20,6 @@ export default function DashboardHeader() {
   };
 
   return (
-    // <div style={{
-    //   display: "flex",
-    //   justifyContent: "flex-end",
-    //   padding: "10px 20px",
-    //   backgroundColor: "#f5f5f5"
-    // }}>
-    //   <button onClick={handleLogout}>Logout</button>
-    // </div>
     <div
       style={{
         display: "flex",
