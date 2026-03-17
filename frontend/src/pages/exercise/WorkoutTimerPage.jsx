@@ -79,8 +79,8 @@ export default function WorkoutTimerPage(){
       saveSet()
       // 判斷最後一組 work
       if (currentSet === totalSets && skipLastRest) {
-        finish.play();
         setPhase("done"); // 直接結束，不進 rest
+        finish.play();
         return;
       }
       rest.play()
@@ -91,6 +91,7 @@ export default function WorkoutTimerPage(){
       // 正常 rest 結束，進下一組
       if(currentSet>=totalSets){
         setPhase("done")
+        finish.play();
         return
       }
       // 其他組休息結束，進入下一組
@@ -110,14 +111,14 @@ export default function WorkoutTimerPage(){
   }
 
   if(phase==="done"){
-   return(
-    <div style={{textAlign:"center",padding:"40px"}}>
-    <h1>Workout Complete 🎉</h1>
-    <button onClick={()=>navigate("/dashboard")} style={{padding:"10px 20px"}}>
-    Back to Dashboard
-    </button>
-    </div>
-   )
+    return(
+      <div style={{textAlign:"center",padding:"40px"}}>
+        <h1>Workout Complete 🎉</h1>
+        <button onClick={()=>navigate("/dashboard")} style={{padding:"10px 20px"}}>
+        Back to Dashboard
+        </button>
+      </div>
+    )
   }
 
 const circleSize = 220
