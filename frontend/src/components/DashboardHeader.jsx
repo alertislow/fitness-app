@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logoutAPI } from "../api/authAPI";
-import UserSetting from "../pages/UserSetting";
 
 export default function DashboardHeader() {
   const navigate = useNavigate();
