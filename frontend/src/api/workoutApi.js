@@ -9,8 +9,7 @@ const API_URL = "http://localhost:8000"
 export async function saveWorkoutSet(data){
   const token = localStorage.getItem("token")
   if(!token){
-      navigate("/login")
-      return
+    throw new Error("No token")
   }
   const res = await fetch(`${API_URL}/workout/set`,{
     method:"POST",
@@ -20,28 +19,28 @@ export async function saveWorkoutSet(data){
     },
     body:JSON.stringify(data)
   })
+  if (!res.ok) throw new Error("Request failed")
   return res.json()
 }
 // 獲取訓練歷史紀錄的 API 呼叫
 export async function getWorkoutHistory(){
   const token = localStorage.getItem("token")
   if(!token){
-      navigate("/login")
-      return
+      throw new Error("No token")
   }
   const res = await fetch(`${API_URL}/workout/history`,{
     headers:{
     "Authorization":`Bearer ${token}`
     }
   })
+  if (!res.ok) throw new Error("Request failed")
   return res.json()
 }
 // 更新訓練紀錄的 API 呼叫
 export async function updateWorkoutSet(id,data){
   const token = localStorage.getItem("token")
   if(!token){
-      navigate("/login")
-      return
+    throw new Error("No token")
   }
   const res = await fetch(`${API_URL}/workout/set/${id}`,{
     method:"PUT",
@@ -51,14 +50,15 @@ export async function updateWorkoutSet(id,data){
     },
     body:JSON.stringify(data)
   })
+  if (!res.ok) throw new Error("Request failed")
+
   return res.json()
 }
 // 刪除訓練紀錄的 API 呼叫
 export async function deleteWorkoutSet(id){
   const token = localStorage.getItem("token")
   if(!token){
-      navigate("/login")
-      return
+    throw new Error("No token")
   }
   const res = await fetch(`${API_URL}/workout/set/${id}`,{
     method:"DELETE",
@@ -66,5 +66,7 @@ export async function deleteWorkoutSet(id){
     "Authorization":`Bearer ${token}`
     }
   })
+  if (!res.ok) throw new Error("Request failed")
+  
   return res.json()
 }
