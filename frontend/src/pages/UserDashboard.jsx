@@ -29,7 +29,8 @@ export default function UserDashboard() {
     <div>
       {/* Header */}
       <DashboardHeader />
-      <div style={{ padding: "20px" }}>
+      <div className="dashboard-container">
+        <div style={{ padding: "20px" }}>
         <h1>User Dashboard</h1>
         {/* Exercise */}
         <div
@@ -79,6 +80,7 @@ export default function UserDashboard() {
             />
             Skip last rest period
           </label>
+          </div>
         </div>
       </div>
     </div>
