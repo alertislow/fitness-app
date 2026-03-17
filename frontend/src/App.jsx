@@ -9,6 +9,8 @@ import ExerciseList from "./pages/exercise/ExerciseList";
 import WorkoutSetupPage from "./pages/exercise/WorkoutSetupPage";
 import WorkoutTimerPage from "./pages/exercise/WorkoutTimerPage";
 import WorkoutHistoryPage from "./pages/exercise/WorkoutHistoryPage";
+import UserSetting from "./pages/UserSetting";
+
 
 export default function App(){
   return (
@@ -23,6 +25,7 @@ export default function App(){
         <Route path="/exercise/workout/:name" element={<WorkoutSetupPage />} /> 
         <Route path="/exercise/timer/:name" element={<WorkoutTimerPage />} />
         <Route path="/workout-history" element={<WorkoutHistoryPage />} />
+        <Route path="/settings" element={<UserSetting />} />
       </Routes>
     </BrowserRouter> 
   )

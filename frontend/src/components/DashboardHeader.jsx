@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logoutAPI } from "../api/authAPI";
+import UserSetting from "../pages/UserSetting";
 
 export default function DashboardHeader() {
   const navigate = useNavigate();
@@ -77,7 +78,7 @@ export default function DashboardHeader() {
           >
             <div
               style={{ padding: "10px", cursor: "pointer" }}
-              onClick={() => alert("User settings coming soon")}
+              onClick={() => navigate("/settings")}
             >
               ⚙️ Settings
             </div>

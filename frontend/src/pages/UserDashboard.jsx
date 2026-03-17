@@ -63,24 +63,6 @@ export default function UserDashboard() {
             View History
           </button>
         </div>
-
-        {/* Setting */}
-        <div style={{
-          border: "1px solid #ddd",
-          padding: "20px",
-          borderRadius: "10px",
-          marginTop: "20px"
-        }}>
-          <h2>Settings</h2>
-          <label>
-            <input
-              type="checkbox"
-              checked={skipLastRest}
-              onChange={toggleSkipLastRest}
-            />
-            Skip last rest period
-          </label>
-          </div>
         </div>
       </div>
     </div>
