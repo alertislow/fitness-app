@@ -7,7 +7,7 @@ export default function WorkoutHistoryPage(){
   const [history, setHistory] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [editSet, setEditSet] = useState(null);
-
+  
   useEffect(() => {
     async function loadHistory() {
       try {
@@ -29,7 +29,11 @@ export default function WorkoutHistoryPage(){
   const groupedByDate = history.reduce((acc, item) => {
     const date = new Date(item.date).toLocaleDateString();
     if (!acc[date]) acc[date] = [];
-    acc[date].push(item);
+
+    if (!acc[date][item.exercise]) {
+      acc[date][item.exercise] = [];
+    }
+    acc[date][item.exercise].push(item);
     return acc;
   }, {});
   
@@ -114,14 +118,14 @@ export default function WorkoutHistoryPage(){
     }
   };
   return (
-    <div style={{padding:"20px"}}>
-      {/* 返回按鈕 */}
+    <div style={{ padding: "20px" }}>
       <button onClick={() => navigate("/dashboard")}>
         ← Back
       </button>
+
       <h1>Workout History</h1>
-      
-      {/* 日期列表 */}
+
+      {/* 1️⃣ 日期列表 */}
       {!selectedDate && (
         <>
           {Object.keys(groupedByDate).length === 0 && <p>No workouts yet</p>}
@@ -137,77 +141,106 @@ export default function WorkoutHistoryPage(){
               }}
               onClick={() => setSelectedDate(date)}
             >
-              <strong>{date}</strong> ({groupedByDate[date].length} sets)
+              <strong>{date}</strong>
             </div>
           ))}
         </>
       )}
 
-      {/* 某天的條列式組別 */}
+      {/* 2️⃣ 當天 exercise + sets */}
       {selectedDate && !editSet && (
         <>
           <button onClick={() => setSelectedDate(null)} style={{ marginBottom: "10px" }}>
             Back to Dates
           </button>
-          {groupedByDate[selectedDate].map((set) => (
+
+          {Object.keys(groupedByDate[selectedDate]).map((exercise) => {
+            const sets = groupedByDate[selectedDate][exercise];
+            const totalVolume = sets.reduce(
+            (sum, set) => sum + set.weight * set.reps,
+            0
+            );
+            return (
             <div
-              key={set.id}
+              key={exercise}
               style={{
-                border: "1px solid #ddd",
+                border: "1px solid #aaa",
                 padding: "10px",
-                marginBottom: "10px",
+                marginBottom: "15px",
                 borderRadius: "8px",
-                cursor: "pointer",
               }}
-              onClick={() => setEditSet(set)}
             >
-              <strong>{set.exercise}</strong>
-              <div>Set {set.set_number}</div>
-              <div>
-                {set.weight} kg × {set.reps}
+              <h3>{exercise}</h3>
+              <div style={{ fontSize: "14px", color: "#555" }}>
+                Total: {totalVolume} kg
               </div>
+              {sets
+                .sort((a, b) => a.set_number - b.set_number)
+                .map((set) => (
+                  <div
+                    key={set.id}
+                    style={{
+                      padding: "8px",
+                      borderBottom: "1px solid #eee",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => setEditSet(set)}
+                  >
+                    Set {set.set_number} — {set.weight} kg × {set.reps}
+                  </div>
+                ))}
             </div>
-
-
-          ))}
+          );
+        })}
         </>
       )}
 
-      {/* 編輯單組 */}
+      {/* 3️⃣ 編輯畫面（獨立） */}
       {editSet && (
         <div style={{ border: "1px solid #ddd", padding: "10px", borderRadius: "8px" }}>
           <h3>Edit Set</h3>
+
           <div>
             <strong>Exercise:</strong> {editSet.exercise}
           </div>
+
           <div>
             <strong>Set Number:</strong> {editSet.set_number}
           </div>
+
           <div>
             <label>
               Weight (kg):
               <input
                 type="number"
                 value={editSet.weight}
-                onChange={(e) => setEditSet({ ...editSet, weight: Number(e.target.value) })}
+                onChange={(e) =>
+                  setEditSet({ ...editSet, weight: Number(e.target.value) })
+                }
               />
             </label>
           </div>
+
           <div>
             <label>
               Reps:
               <input
                 type="number"
                 value={editSet.reps}
-                onChange={(e) => setEditSet({ ...editSet, reps: Number(e.target.value) })}
+                onChange={(e) =>
+                  setEditSet({ ...editSet, reps: Number(e.target.value) })
+                }
               />
             </label>
           </div>
-          <div style={{ display: "flex"}}>
+
+          <div style={{ display: "flex" }}>
             <button onClick={handleSave} style={{ marginRight: "10px" }}>
               Save
             </button>
+
             <button onClick={() => setEditSet(null)}>Cancel</button>
+
             <button
               onClick={() => handleDelete(editSet)}
               style={{
@@ -223,10 +256,8 @@ export default function WorkoutHistoryPage(){
               Delete
             </button>
           </div>
-          
         </div>
       )}
-    
     </div>
-  )
+  );
 }
