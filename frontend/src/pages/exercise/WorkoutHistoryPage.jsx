@@ -172,7 +172,7 @@ export default function WorkoutHistoryPage(){
             >
               <h3>{exercise}</h3>
               <div style={{ fontSize: "14px", color: "#555" }}>
-                Total: {totalVolume} kg
+                Total: {totalVolume.toLocaleString()} kg
               </div>
               {sets
                 .sort((a, b) => a.set_number - b.set_number)
