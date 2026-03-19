@@ -29,18 +29,6 @@ class Exercise(Base):
     body_part_id = Column(Integer, ForeignKey("body_parts.id"))
 
 
-# class Workout(Base):
-#     __tablename__ = "workouts"
-
-#     id = Column(Integer, primary_key=True, index=True)
-#     user_id = Column(Integer, ForeignKey("users.id"))
-#     exercise = Column(String)  
-#     sets = Column(Integer)
-#     reps = Column(Integer)
-#     weight = Column(Integer)
-#     date = Column(DateTime, default=datetime.utcnow)
-
-
 # workout history table, 包含日期、exercise、sets、reps、weight等資訊，讓使用者可以查看過去的訓練紀錄
 class WorkoutSet(Base):
     __tablename__ = "workout_sets"

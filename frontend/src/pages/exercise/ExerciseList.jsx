@@ -1,22 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-const exerciseData = {
-  1: ["槓鈴臥推", "上斜啞鈴推舉", "蝴蝶機夾胸"],
-  2: ["深蹲", "腿推", "腿屈伸", "硬舉"],
-  3: ["杠鈴划船","滑輪下拉","引體向上" ],
-  4: ["槓鈴肩推", "側平舉", "後三角肌飛鳥"],
-  5: ["杠鈴彎舉", "錘式彎舉"],
-  6: ["cable 三頭下壓", "仰臥肱三頭伸展"],
-  7: ["棒式", "卷腹", "斜板抬腿"]
-};
-
 export default function ExerciseList() {
-
-  const { id } = useParams();
+  const { id } = useParams();  // body part id
   const navigate = useNavigate();
+  const [exercises, setExercises] = useState([]);
 
-  const exercises = exerciseData[id] || [];
+  // 根據 body part id 獲取 exercise list
+  useEffect(() => {
+  fetch("http://localhost:8000/exercise/list")
+    .then(res => res.json())
+    .then(data => {
+      // 過濾該 body part
+      const filtered = data.filter(e => e.body_part_id === Number(id));
+      setExercises(filtered);
+    })
+    .catch(err => console.error(err));
+  }, [id]);
+  const openExercise = (exerciseId) => {
+      navigate(`/exercise/workout/${exerciseId}`);
+    };
 
   return (
     <div style={{ padding: "20px" }}>
@@ -26,10 +29,10 @@ export default function ExerciseList() {
       </button>
       <h1>Exercises</h1>
 
-      {exercises.map((exercise, index) => (
+      {exercises.map((exercise) => (
         <div
-          key={index}
-          onClick={() => navigate(`/exercise/workout/${exercise}`)}
+          key={exercise.id}
+          onClick={() => openExercise(exercise.id)}
           style={{
             border: "1px solid #ddd",
             padding: "15px",
@@ -38,10 +41,9 @@ export default function ExerciseList() {
             cursor: "pointer"
           }}
         >
-          {exercise}
+          {exercise.name}
         </div>
       ))}
-
     </div>
   );
 }

@@ -17,7 +17,7 @@ def save_set(
     ): 
     workout = WorkoutSet(
         user_id = current_user_id, #自動帶uer_id，不從前端傳入
-        exercise=data.exercise,
+        exercise_id=data.exercise_id,
         set_number=data.set_number,
         reps=data.reps,
         weight=data.weight,
@@ -77,3 +77,4 @@ def delete_set(id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"status": "deleted"}
+

@@ -1,23 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const bodyParts = [
-  { id: 1, name: "胸" },
-  { id: 2, name: "腿" },
-  { id: 3, name: "背" },
-  { id: 4, name: "肩" },
-  { id: 5, name: "二頭" },
-  { id: 6, name: "三頭" },
-  { id: 7, name: "核心" }
-];
-
 export default function BodyPartList() {
-
+  const [bodyParts, setBodyParts] = useState([]);
   const navigate = useNavigate();
 
   const openBodyPart = (id) => {
     navigate(`/exercise/body-part/${id}`);
   };
+  useEffect(() => {
+    fetch("http://localhost:8000/exercise/body-parts")
+      .then(res => res.json())
+      .then(data => setBodyParts(data))
+      .catch(err => console.error(err));
+  }, []);
 
   return (
     <div style={{ padding: "20px" }}>

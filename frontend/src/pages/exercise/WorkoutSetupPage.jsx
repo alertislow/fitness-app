@@ -3,10 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 
 export default function WorkoutSetupPage() {
 
-  const { name } = useParams();
+  const { id } = useParams(); // exercise_id
   const navigate = useNavigate();
-
-  const storageKey = `workout_${name}`;  // 每個動作獨立的儲存鍵
+  const [exercise, setExercise] = useState(null);
+  const storageKey = `workout_${id}`;  // 每個動作獨立的儲存鍵
 
   // 預設值
   const [sets, setSets] = useState(5);
@@ -15,7 +15,7 @@ export default function WorkoutSetupPage() {
   const [workTime, setWorkTime] = useState(90);
   const [restTime, setRestTime] = useState(120);
 
-  // 載入記錄
+  // 載入localStorage記錄
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
     if (saved) {
@@ -28,6 +28,14 @@ export default function WorkoutSetupPage() {
     }
   }, [storageKey]);
 
+  // 在 useEffect 中 fetch 該 exercise
+  useEffect(() => {
+    fetch(`http://localhost:8000/exercise/${id}`)
+      .then(res => res.json())
+      .then(data => setExercise(data))
+      .catch(err => console.error(err));
+  }, [id]);
+
   // 儲存設定
   const saveSettings = () => {
     const data = { sets, reps, weight, workTime, restTime };
@@ -36,13 +44,13 @@ export default function WorkoutSetupPage() {
 
   const startWorkout = () => {
     saveSettings();
-    navigate(`/exercise/timer/${name}`);
+    navigate(`/exercise/timer/${id}`);
   };
 
   return (
     <div style={{ padding: "20px", maxWidth: "400px", margin: "auto" }}>
 
-      <h1>{name}</h1>
+      <h1>{exercise ? exercise.name : `Exercise ID: ${id}`}</h1>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
 
