@@ -4,7 +4,6 @@ from typing import Optional
 
 class ExerciseBase(BaseModel):
     name: str
-    description: str | None = None
     body_part_id: int
 
 class ExerciseCreate(ExerciseBase):

@@ -26,6 +26,6 @@ def get_exercise(exercise_id: int, db: Session = Depends(get_db)):
     return {
         "id": exercise.id,
         "name": exercise.name,
-        "description": exercise.description,
+        # "description": exercise.description,
         "body_part_id": exercise.body_part_id
     }

@@ -70,3 +70,4 @@ export async function deleteWorkoutSet(id){
   
   return res.json()
 }
+
