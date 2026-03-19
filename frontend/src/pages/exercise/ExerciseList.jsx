@@ -17,8 +17,8 @@ export default function ExerciseList() {
     })
     .catch(err => console.error(err));
   }, [id]);
-  const openExercise = (exerciseId) => {
-      navigate(`/exercise/workout/${exerciseId}`);
+    const openExercise = (exercise) => {
+      navigate(`/exercise/workout-setup/${exercise.id}`, { state: { bodyPartId: id } });
     };
 
   return (
@@ -32,7 +32,7 @@ export default function ExerciseList() {
       {exercises.map((exercise) => (
         <div
           key={exercise.id}
-          onClick={() => openExercise(exercise.id)}
+          onClick={() => openExercise(exercise)}
           style={{
             border: "1px solid #ddd",
             padding: "15px",

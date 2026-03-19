@@ -22,8 +22,8 @@ export default function App(){
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/exercise/body-part" element={<BodyPartList />} />
         <Route path="/exercise/body-part/:id" element={<ExerciseList />} />
-        <Route path="/exercise/workout/:id" element={<WorkoutSetupPage />} /> 
-        <Route path="/exercise/timer/:id" element={<WorkoutTimerPage />} />
+        <Route path="/exercise/workout-setup/:exerciseId" element={<WorkoutSetupPage />} /> 
+        <Route path="/exercise/timer/:exerciseId" element={<WorkoutTimerPage />} />
         <Route path="/workout-history" element={<WorkoutHistoryPage />} />
         <Route path="/settings" element={<UserSetting />} />
       </Routes>

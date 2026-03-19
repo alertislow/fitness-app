@@ -7,13 +7,13 @@ import finishSound from "/sounds/bababoi.mp3";
 import { saveWorkoutSet } from "../../api/workoutApi.js"
 
 export default function WorkoutTimerPage(){
-  const { id } = useParams();  // exercise_id
+  const { exerciseId } = useParams();  // exercise_id
    // exercise 資料
   const [exercise, setExercise] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  const settings = JSON.parse(localStorage.getItem(`workout_${id}`)) || {};
+  const settings = JSON.parse(localStorage.getItem(`workout_${exerciseId}`)) || {};
 
   const totalSets = settings?.sets || 5;
   const reps = settings?.reps || 10;
@@ -37,13 +37,13 @@ export default function WorkoutTimerPage(){
 
   // 存入 workout history
   async function saveSet(){
-    if (!id) {
+    if (!exerciseId) {
       console.error("exercise_id 尚未取得");
       return;
     }
     try {
       await saveWorkoutSet({
-        exercise_id: Number(id), // 確保是整數
+        exercise_id: Number(exerciseId), // 確保是整數
         weight: weight,
         reps: reps,
         set_number: currentSet
@@ -87,11 +87,11 @@ export default function WorkoutTimerPage(){
 
   // 在 useEffect 中 fetch 該 exercise
   useEffect(() => {
-    fetch(`http://localhost:8000/exercise/${id}`)
+    fetch(`http://localhost:8000/exercise/${exerciseId}`)
       .then(res => res.json())
       .then(data => setExercise(data))
       .catch(err => console.error(err));
-  }, [id]);
+  }, [exerciseId]);
 
   function nextPhase(){
     if(phase==="prepare"){
@@ -151,7 +151,7 @@ const circleSize = 220
 return(
 
   <div style={{textAlign:"center",padding:"40px"}}>
-    <h1>{exercise ? exercise.name : `Exercise ID: ${id}`}</h1>
+    <h1>{exercise ? exercise.name : `Exercise ID: ${exerciseId}`}</h1>
     <h2>Set {currentSet}/{totalSets}</h2>
     <div style={{marginBottom:"10px"}}>
       <strong>{weight} kg</strong>  
