@@ -15,6 +15,7 @@ export default function WorkoutTimerPage(){
 
   const settings = JSON.parse(localStorage.getItem(`workout_${exerciseId}`)) || {};
 
+  // 從設定讀取參數，若沒有則使用預設值
   const totalSets = settings?.sets || 5;
   const reps = settings?.reps || 10;
   const weight = settings?.weight || 0;
@@ -34,31 +35,50 @@ export default function WorkoutTimerPage(){
   const rest = new Audio(restSound);
   const finish = new Audio(finishSound);
   
+  // 儲存已完成的 sets，後續再一起call API 儲存到後端，而不是每組work都送一次 API（這樣效能更好）
+  const [completedSets, setCompletedSets] = useState([]);
 
-  // 存入 workout history
-  async function saveSet(){
-    if (!exerciseId) {
-      console.error("exercise_id 尚未取得");
-      return;
-    }
+  const handleFinishSet = (setData) => {
+    setCompletedSets(prev => [
+      ...prev,
+      {
+        exercise_id: Number(exerciseId),
+        reps: setData.reps,
+        weight: setData.weight
+      }
+    ]);
+  };
+  const handleFinishWorkout = async () => {
     try {
-      await saveWorkoutSet({
-        exercise_id: Number(exerciseId), // 確保是整數
-        weight: weight,
-        reps: reps,
-        set_number: currentSet
-      });
-      console.log("Workout set saved!");
+      console.log("sending sets:", completedSets); // 🔍 debug
+
+      await saveWorkoutSet(completedSets); // 🔥 傳整個 array
+
+      // alert("Workout saved!");
+      setCompletedSets([]); // 清空
     } catch (err) {
       console.error("存儲 workout 失敗:", err);
     }
-    // await saveWorkoutSet({
-    //   exercise_id: Number(id),
-    //   weight: weight,
-    //   reps: reps,
-    //   set_number:currentSet
-    // });
-  }
+  };
+  // 存入 workout history
+  // async function saveSet(){
+  //   if (!exerciseId) {
+  //     console.error("exercise_id 尚未取得");
+  //     return;
+  //   }
+  //   try {
+  //     await saveWorkoutSet({
+  //       exercise_id: Number(exerciseId), // 確保是整數
+  //       weight: weight,
+  //       reps: reps,
+  //       // set_number: currentSet // 🔥 後端會自動計算 set_number，前端不需要傳
+  //     });
+  //     console.log("Workout set saved!");
+  //   } catch (err) {
+  //     console.error("存儲 workout 失敗:", err);
+  //   }
+
+  // }
   function formatTime(sec){
     const m = Math.floor(sec/60)
     const s = sec%60
@@ -100,8 +120,11 @@ export default function WorkoutTimerPage(){
       setTimeLeft(workTime);
     }
     else if(phase==="work"){
-      // 完成一組 → 存到後端
-      saveSet()
+      // 儲存剛完成的 set（但還沒 call API）
+      handleFinishSet({
+        reps: reps,
+        weight: weight
+      });
       // 判斷最後一組 work
       if (currentSet === totalSets && skipLastRest) {
         setPhase("done"); // 直接結束，不進 rest
@@ -131,7 +154,8 @@ export default function WorkoutTimerPage(){
     nextPhase()
     }
 
-  function endWorkout(){
+  async function endWorkout(){
+    await handleFinishWorkout(); // 🔥 存資料
     navigate("/dashboard")
   }
 
@@ -139,7 +163,12 @@ export default function WorkoutTimerPage(){
     return(
       <div style={{textAlign:"center",padding:"40px"}}>
         <h1>Workout Complete 🎉</h1>
-        <button onClick={()=>navigate("/dashboard")} style={{padding:"10px 20px"}}>
+        <button onClick={async () => {
+            await handleFinishWorkout();
+            navigate("/dashboard");
+          }} 
+          style={{padding:"10px 20px"}}
+        >
         Back to Dashboard
         </button>
       </div>

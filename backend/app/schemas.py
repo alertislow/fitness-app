@@ -13,7 +13,6 @@ class ExerciseCreate(ExerciseBase):
 class WorkoutCreate(BaseModel):
     # user_id: int  要使用JWT認證系統獲取當前用戶的 ID，不從前端傳入 user_id
     exercise_id: int
-    set_number: int
     reps: int
     weight: float
 

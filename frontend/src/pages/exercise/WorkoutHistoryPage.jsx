@@ -1,39 +1,58 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getWorkoutHistory, updateWorkoutSet, deleteWorkoutSet } from "../../api/workoutApi.js"
+import { getWorkoutHistory, updateWorkoutSet, deleteWorkoutSet } from "../../api/workoutApi.js" // 從後端抓 workout history、更新 set、刪除 set
+import { getExerciseList } from "../../api/exerciseAPI.js"; // 用來顯示 exercise name
 
 export default function WorkoutHistoryPage(){
   const navigate = useNavigate()
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState([]);  //儲存進DB
+  const [exerciseList, setExerciseList] = useState([]); // 儲存 exercise list 用來對照名稱
   const [selectedDate, setSelectedDate] = useState(null);
   const [editSet, setEditSet] = useState(null);
   
   useEffect(() => {
-    async function loadHistory() {
+    async function loadData() {
       try {
-        const response = await getWorkoutHistory(); // 從後端抓資料
-        setHistory(response.data); 
-        if (response && response.data) {
-          setHistory(response.data);
-        }
+        const historyRes = await getWorkoutHistory();
+        // 🔥 1. fetch exercise list
+        const exerciseRes = await fetch("http://localhost:8000/exercise/list", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const exerciseData = await exerciseRes.json();
+
+        // 存進 state（這行很重要）
+        setExerciseList(exerciseData);
+        // 原本的 history
+        setHistory(historyRes.data);
       } catch (error) {
         if (error.message === "No token") {
           navigate("/login"); // 導頁到登入頁面
         }   
-        console.error("Failed to load workout history:", error);
+        console.error("Load failed:", error);
       }
     }
-    loadHistory();
+    loadData();
   }, []);
+
+  // 🔥 建立 exerciseId → name 對照表（效能更好）
+  const exerciseMap = React.useMemo(() => {
+    return exerciseList.reduce((acc, ex) => {
+      acc[ex.id] = ex.name;
+      return acc;
+    }, {});
+  }, [exerciseList]);
+
   // 將資料依日期分組
   const groupedByDate = history.reduce((acc, item) => {
     const date = new Date(item.date).toLocaleDateString();
-    if (!acc[date]) acc[date] = [];
+    if (!acc[date]) acc[date] = {};
 
-    if (!acc[date][item.exercise]) {
-      acc[date][item.exercise] = [];
-    }
-    acc[date][item.exercise].push(item);
+    // 依照 exercise_id 分組，這樣同一天的不同 exercise 就不會混在一起
+    const exId = item.exercise_id; 
+    if (!acc[date][exId]) acc[date][exId] = [];
+    acc[date][exId].push(item);
     return acc;
   }, {});
   
@@ -42,7 +61,7 @@ export default function WorkoutHistoryPage(){
   const handleSave = async () => {
     try {
       await updateWorkoutSet(editSet.id, {
-        exercise: editSet.exercise,
+        exercise_id: editSet.exercise_id,
         set_number: editSet.set_number,
         weight: editSet.weight,
         reps: editSet.reps,
@@ -58,47 +77,46 @@ export default function WorkoutHistoryPage(){
       alert("Failed to update");
     }
   };
-  // 刪除訓練紀錄
+  // 刪除訓練紀錄 + 重排同組後面的 set_number
   const handleDelete = async (setToDelete) => {
     if (!window.confirm("確定要刪除這組嗎？")) return;
     try {
-      // 1️⃣ 先刪除
+      // 刪除
       await deleteWorkoutSet(setToDelete.id);
+      // 找出被刪的是第幾組
+      const deletedSetNumber = setToDelete.set_number;
 
-      // 2️⃣ 找出同一天 + 同 exercise 的資料
+      // 找出同一天 + 同 exercise 的資料
       const sameGroup = history
         .filter(
           (item) =>
-            item.exercise === setToDelete.exercise &&
+            item.exercise_id === setToDelete.exercise_id &&
             new Date(item.date).toLocaleDateString() ===
               new Date(setToDelete.date).toLocaleDateString()
         )
         .sort((a, b) => a.set_number - b.set_number);
 
-      // 3️⃣ 找出被刪的是第幾組
-      const deletedSetNumber = setToDelete.set_number;
-
-      // 4️⃣ 將後面的 set_number -1
+      // 找需要重排的，將後面的 set_number -1
       const needUpdate = sameGroup.filter(
         (item) => item.set_number > deletedSetNumber
       );
-
+      // 更新DB
       for (let item of needUpdate) {
         await updateWorkoutSet(item.id, {
-          exercise: item.exercise,
+          exercise_id: item.exercise_id,
           set_number: item.set_number - 1, // 🔥 重排
           weight: item.weight,
           reps: item.reps,
         });
       }
 
-      // 5️⃣ 更新本地 state（不用重新 GET）
+      // 更新前端 state（不用重新 GET）
       setHistory((prev) =>
         prev
           .filter((item) => item.id !== setToDelete.id) // 移除被刪的
           .map((item) => {
             if (
-              item.exercise === setToDelete.exercise &&
+              item.exercise_id === setToDelete.exercise_id &&
               new Date(item.date).toLocaleDateString() ===
                 new Date(setToDelete.date).toLocaleDateString() &&
               item.set_number > deletedSetNumber
@@ -154,15 +172,17 @@ export default function WorkoutHistoryPage(){
             Back to Dates
           </button>
 
-          {Object.keys(groupedByDate[selectedDate]).map((exercise) => {
-            const sets = groupedByDate[selectedDate][exercise];
+          {Object.keys(groupedByDate[selectedDate]).map((exerciseId) => {
+            const sets = groupedByDate[selectedDate][exerciseId];
+            const exerciseName =
+              exerciseMap[exerciseId] || "Unknown Exercise";
             const totalVolume = sets.reduce(
-            (sum, set) => sum + set.weight * set.reps,
-            0
+              (sum, set) => sum + set.weight * set.reps,
+              0
             );
             return (
             <div
-              key={exercise}
+              key={exerciseId}
               style={{
                 border: "1px solid #aaa",
                 padding: "10px",
@@ -170,7 +190,7 @@ export default function WorkoutHistoryPage(){
                 borderRadius: "8px",
               }}
             >
-              <h3>{exercise}</h3>
+              <h3>{exerciseName}</h3>
               <div style={{ fontSize: "14px", color: "#555" }}>
                 Total: {totalVolume.toLocaleString()} kg
               </div>
@@ -201,7 +221,8 @@ export default function WorkoutHistoryPage(){
           <h3>Edit Set</h3>
 
           <div>
-            <strong>Exercise:</strong> {editSet.exercise}
+            <strong>Exercise:</strong>{" "}
+            {exerciseMap[editSet.exercise_id] || "Unknown"}
           </div>
 
           <div>
@@ -210,7 +231,7 @@ export default function WorkoutHistoryPage(){
 
           <div>
             <label>
-              Weight (kg):
+              Weight:
               <input
                 type="number"
                 value={editSet.weight}
