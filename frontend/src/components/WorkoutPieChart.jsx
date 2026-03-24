@@ -1,3 +1,4 @@
+import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 // 部位對照表 (對應 DB 的 id)
@@ -9,7 +10,7 @@ const BODY_PART_MAP = {
 // 圓餅圖顏色配方
 const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF'];
 
-const WorkoutSummaryPieChart = ({ dailyData, exerciseList }) => {
+export const WorkoutSummaryPieChart = ({ dailyData, exerciseList }) => {
   // 1. 轉換數據邏輯
   const stats = {};
   let totalSets = 0;
