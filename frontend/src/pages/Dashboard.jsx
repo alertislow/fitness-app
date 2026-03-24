@@ -19,7 +19,7 @@ export default function Dashboard() {
   if (!token) return null;
 
   const user = decodeToken(token);
-  console.log("Decoded user:", user); // 🔍 檢查 token payload
+  // console.log("Decoded user:", user); // 🔍 檢查 token payload
 
   if (!user || !user.role) {
     localStorage.removeItem("token");
