@@ -81,59 +81,107 @@ export default function WorkoutHistoryPage(){
   const handleDelete = async (setToDelete) => {
     if (!window.confirm("確定要刪除這組嗎？")) return;
     try {
-      // 刪除
+      // 1. 先執行刪除資料庫動作
       await deleteWorkoutSet(setToDelete.id);
-      // 找出被刪的是第幾組
-      const deletedSetNumber = setToDelete.set_number;
-
-      // 找出同一天 + 同 exercise 的資料
-      const sameGroup = history
-        .filter(
-          (item) =>
-            item.exercise_id === setToDelete.exercise_id &&
-            new Date(item.date).toLocaleDateString() ===
-              new Date(setToDelete.date).toLocaleDateString()
+      // 獲取當前所有的紀錄，並找出「同天、同動作、序號在大於被刪除者」的資料
+      const deletedIndex = setToDelete.set_number;
+      // 使用與分組顯示一致的日期格式 (toLocaleDateString)
+      const targetDateStr = new Date(setToDelete.date).toLocaleDateString();
+      // 2. 找出「同天、同動作、序號較大」的資料
+      const needUpdateSets = history.filter(item => {
+        const itemDateStr = new Date(item.date).toLocaleDateString();
+        return (
+          item.exercise_id === setToDelete.exercise_id &&
+          itemDateStr === targetDateStr && // 確保日期精確匹配
+          item.set_number > deletedIndex
+        );
+      });
+      console.log("確定要更新的清單:", needUpdateSets);
+      // 3. 更新資料庫 (只傳後端需要的 4 個欄位)
+      await Promise.all(
+        needUpdateSets.map(item => 
+          updateWorkoutSet(item.id, {
+            exercise_id: item.exercise_id,
+            set_number: item.set_number - 1,
+            weight: item.weight,
+            reps: item.reps
+          })
         )
-        .sort((a, b) => a.set_number - b.set_number);
-
-      // 找需要重排的，將後面的 set_number -1
-      const needUpdate = sameGroup.filter(
-        (item) => item.set_number > deletedSetNumber
       );
-      // 更新DB
-      for (let item of needUpdate) {
-        await updateWorkoutSet(item.id, {
-          exercise_id: item.exercise_id,
-          set_number: item.set_number - 1, // 🔥 重排
-          weight: item.weight,
-          reps: item.reps,
-        });
-      }
 
-      // 更新前端 state（不用重新 GET）
-      setHistory((prev) =>
-        prev
-          .filter((item) => item.id !== setToDelete.id) // 移除被刪的
+      // 4. 一次性更新前端 State (確保 UI 同步)
+      setHistory((prev) => {
+        return prev
+          .filter((item) => item.id !== setToDelete.id) // 移除被刪除的那筆
           .map((item) => {
+            const itemDateStr = new Date(item.date).toLocaleDateString();
+            // 只有同組且序號在後面的才需要 -1
             if (
               item.exercise_id === setToDelete.exercise_id &&
-              new Date(item.date).toLocaleDateString() ===
-                new Date(setToDelete.date).toLocaleDateString() &&
-              item.set_number > deletedSetNumber
+              itemDateStr === targetDateStr &&
+              item.set_number > deletedIndex
             ) {
-              return {
-                ...item,
-                set_number: item.set_number - 1,
-              };
+              return { ...item, set_number: item.set_number - 1 };
             }
             return item;
           })
-      );
-      setEditSet(null); // 關閉編輯視窗
+          .sort((a, b) => a.set_number - b.set_number); // 排序
+      });
+
+      setEditSet(null);
+      // alert("刪除並重排成功！");
     } catch (err) {
-      console.error(err);
-      alert("Delete failed");
+      console.error("刪除失敗:", err);
+      alert("刪除失敗，請檢查網路。");
     }
+      // // 找出同一天 + 同 exercise 的資料
+      // const sameGroup = history
+      //   .filter(
+      //     (item) =>
+      //       item.exercise_id === setToDelete.exercise_id &&
+      //       new Date(item.date).toLocaleDateString() ===
+      //         new Date(setToDelete.date).toLocaleDateString()
+      //   )
+      //   .sort((a, b) => a.set_number - b.set_number);
+
+      // // 找需要重排的，將後面的 set_number -1
+      // const needUpdate = sameGroup.filter(
+      //   (item) => item.set_number > deletedSetNumber
+      // );
+      // // 更新DB
+      // for (let item of needUpdate) {
+      //   await updateWorkoutSet(item.id, {
+      //     exercise_id: item.exercise_id,
+      //     set_number: item.set_number - 1, // 🔥 重排
+      //     weight: item.weight,
+      //     reps: item.reps,
+      //   });
+      // }
+
+    //   // 更新前端 state（不用重新 GET）
+    //   setHistory((prev) =>
+    //     prev
+    //       .filter((item) => item.id !== setToDelete.id) // 移除被刪的
+    //       .map((item) => {
+    //         if (
+    //           item.exercise_id === setToDelete.exercise_id &&
+    //           new Date(item.date).toLocaleDateString() ===
+    //             new Date(setToDelete.date).toLocaleDateString() &&
+    //           item.set_number > deletedSetNumber
+    //         ) {
+    //           return {
+    //             ...item,
+    //             set_number: item.set_number - 1,
+    //           };
+    //         }
+    //         return item;
+    //       })
+    //   );
+    //   setEditSet(null); // 關閉編輯視窗
+    // } catch (err) {
+    //   console.error(err);
+    //   alert("Delete failed");
+    // }
   };
   return (
     <div style={{ padding: "20px" }}>

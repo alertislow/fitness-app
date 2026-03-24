@@ -11,11 +11,14 @@ class ExerciseCreate(ExerciseBase):
 
 # 運動記錄
 class WorkoutCreate(BaseModel):
-    # user_id: int  要使用JWT認證系統獲取當前用戶的 ID，不從前端傳入 user_id
     exercise_id: int
+    # set_number: int
     reps: int
     weight: float
 
+# 專門給運動記錄「更新」和「重排」使用
+class WorkoutUpdate(WorkoutCreate):
+    set_number: int  # 更新時必須包含序號
 
 # 用戶建立
 class UserCreate(BaseModel):

@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, APIRouter
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from app.database import get_db
-from app.schemas import WorkoutCreate
+from app.schemas import WorkoutCreate, WorkoutUpdate
 from app.models import WorkoutSet
 from app.core.security import get_current_user_id # JWT function
 from typing import List
@@ -67,15 +67,15 @@ def get_history(
 
 # PUT /workout/set/{id}
 @router.put("/set/{id}")
-def update_set(id: int, data: WorkoutCreate, db: Session = Depends(get_db)):
+def update_set(id: int, data: WorkoutUpdate, db: Session = Depends(get_db)):
 
     workout = db.query(WorkoutSet).filter(WorkoutSet.id == id).first()
 
     if not workout:
         raise HTTPException(status_code=404, detail="Workout not found")
 
-    workout.exercise = data.exercise
-    workout.set_number = data.set_number
+    workout.exercise_id = data.exercise_id
+    workout.set_number = data.set_number 
     workout.reps = data.reps
     workout.weight = data.weight
 
