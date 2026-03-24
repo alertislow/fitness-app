@@ -9,7 +9,8 @@ export default function WorkoutHistoryPage(){
   const [exerciseList, setExerciseList] = useState([]); // 儲存 exercise list 用來對照名稱
   const [selectedDate, setSelectedDate] = useState(null);
   const [editSet, setEditSet] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); // 編輯與刪除的loading狀態
+  const [expandedExId, setExpandedExId] = useState(null); // 用來控制同一天的 exercise 展開收合
   
   useEffect(() => {
     async function loadData() {
@@ -155,7 +156,7 @@ export default function WorkoutHistoryPage(){
 
       <h1>Workout History</h1>
 
-      {/* 1️⃣ 日期列表 */}
+      {/* 日期列表 */}
       {!selectedDate && (
         <>
           {Object.keys(groupedByDate).length === 0 && <p>No workouts yet</p>}
@@ -177,10 +178,10 @@ export default function WorkoutHistoryPage(){
         </>
       )}
 
-      {/* 2️⃣ 當天 exercise + sets */}
+      {/* 當天 exercise + sets */}
       {selectedDate && !editSet && (
         <>
-          <button onClick={() => setSelectedDate(null)} style={{ marginBottom: "10px" }}>
+          <button onClick={() => {setSelectedDate(null); setExpandedExId(null);}} style={{ marginBottom: "20px" }}>
             Back to Dates
           </button>
 
@@ -188,21 +189,65 @@ export default function WorkoutHistoryPage(){
             const sets = groupedByDate[selectedDate][exerciseId];
             const exerciseName =
               exerciseMap[exerciseId] || "Unknown Exercise";
+            const isExpanded = expandedExId === exerciseId; // 判斷是否展開
             const totalVolume = sets.reduce(
               (sum, set) => sum + set.weight * set.reps,
               0
             );
             return (
-            <div
-              key={exerciseId}
-              style={{
-                border: "1px solid #aaa",
-                padding: "10px",
-                marginBottom: "15px",
-                borderRadius: "8px",
-              }}
-            >
-              <h3>{exerciseName}</h3>
+              <div
+                key={exerciseId}
+                style={{
+                  border: "1px solid #444",
+                  marginBottom: "10px",
+                  borderRadius: "8px",
+                  overflow: "hidden", // 確保圓角
+                  backgroundColor: "#1a1a1a"
+                }}
+              >
+              {/* 標題欄：點擊切換展開/縮合 */}
+              <div 
+                onClick={() => setExpandedExId(isExpanded ? null : exerciseId)}
+                style={{
+                  padding: "15px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  cursor: "pointer",
+                  backgroundColor: isExpanded ? "#333" : "transparent",
+                  transition: "background 0.3s"
+                }}
+              >
+                <div>
+                  <strong style={{ fontSize: "1.1rem" }}>{exerciseName}</strong>
+                  <div style={{ fontSize: "12px", color: "#aaa" }}>
+                    Total: {totalVolume.toLocaleString()} kg | {sets.length} Sets
+                  </div>
+                </div>
+                <span>{isExpanded ? "▲" : "▼"}</span>
+              </div>
+              {/* 內容區：僅在 isExpanded 為 true 時顯示 */}
+              {isExpanded && (
+                <div style={{ padding: "10px", borderTop: "1px solid #444", backgroundColor: "#111" }}>
+                  {sets
+                    .sort((a, b) => a.set_number - b.set_number)
+                    .map((set) => (
+                      <div
+                        key={set.id}
+                        style={{
+                          padding: "12px",
+                          borderBottom: "1px solid #222",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          cursor: "pointer"
+                        }}
+                        onClick={() => setEditSet(set)}
+                      >
+                        <span>Set {set.set_number}</span>
+                        <span>{set.weight} kg × {set.reps}</span>
+                      </div>
+                    ))}
+              {/* <h3>{exerciseName}</h3>
               <div style={{ fontSize: "14px", color: "#555" }}>
                 Total: {totalVolume.toLocaleString()} kg
               </div>
@@ -220,14 +265,17 @@ export default function WorkoutHistoryPage(){
                   >
                     Set {set.set_number} — {set.weight} kg × {set.reps}
                   </div>
-                ))}
-            </div>
-          );
-        })}
+                ))} */}
+                </div>
+              )}
+          </div>
+        );
+      })}
+      {/* 這裡預留給圓餅圖 */}
+          {/* <WorkoutSummaryPieChart data={groupedByDate[selectedDate]} /> */}
         </>
       )}
-
-      {/* 3️⃣ 編輯畫面（獨立） */}
+      {/* 編輯畫面（獨立） */}
       {editSet && (
         <div style={{ border: "1px solid #ddd", padding: "10px", borderRadius: "8px" }}>
           <h3>Edit Set</h3>
