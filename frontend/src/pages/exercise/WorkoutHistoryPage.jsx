@@ -9,6 +9,7 @@ export default function WorkoutHistoryPage(){
   const [exerciseList, setExerciseList] = useState([]); // 儲存 exercise list 用來對照名稱
   const [selectedDate, setSelectedDate] = useState(null);
   const [editSet, setEditSet] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   useEffect(() => {
     async function loadData() {
@@ -59,6 +60,8 @@ export default function WorkoutHistoryPage(){
 
    // 優化：編輯完成後直接更新單組資料
   const handleSave = async () => {
+    // 🔒 開啟鎖定，防止重複點擊
+    setIsProcessing(true);
     try {
       await updateWorkoutSet(editSet.id, {
         exercise_id: editSet.exercise_id,
@@ -75,11 +78,17 @@ export default function WorkoutHistoryPage(){
     } catch (err) {
       console.error(err);
       alert("Failed to update");
+    } finally {
+      // 🔓 無論成功失敗，最後都要解鎖
+      setIsProcessing(false); 
     }
   };
   // 刪除訓練紀錄 + 重排同組後面的 set_number
   const handleDelete = async (setToDelete) => {
     if (!window.confirm("確定要刪除這組嗎？")) return;
+    // 🔒 開啟鎖定，防止重複點擊
+    setIsProcessing(true);
+
     try {
       // 1. 先執行刪除資料庫動作
       await deleteWorkoutSet(setToDelete.id);
@@ -125,7 +134,7 @@ export default function WorkoutHistoryPage(){
             }
             return item;
           })
-          .sort((a, b) => a.set_number - b.set_number); // 排序
+          // .sort((a, b) => a.set_number - b.set_number); // 排序
       });
 
       setEditSet(null);
@@ -133,55 +142,10 @@ export default function WorkoutHistoryPage(){
     } catch (err) {
       console.error("刪除失敗:", err);
       alert("刪除失敗，請檢查網路。");
+    }finally {
+    // 🔓 無論成功失敗，最後都要解鎖
+    setIsProcessing(false); 
     }
-      // // 找出同一天 + 同 exercise 的資料
-      // const sameGroup = history
-      //   .filter(
-      //     (item) =>
-      //       item.exercise_id === setToDelete.exercise_id &&
-      //       new Date(item.date).toLocaleDateString() ===
-      //         new Date(setToDelete.date).toLocaleDateString()
-      //   )
-      //   .sort((a, b) => a.set_number - b.set_number);
-
-      // // 找需要重排的，將後面的 set_number -1
-      // const needUpdate = sameGroup.filter(
-      //   (item) => item.set_number > deletedSetNumber
-      // );
-      // // 更新DB
-      // for (let item of needUpdate) {
-      //   await updateWorkoutSet(item.id, {
-      //     exercise_id: item.exercise_id,
-      //     set_number: item.set_number - 1, // 🔥 重排
-      //     weight: item.weight,
-      //     reps: item.reps,
-      //   });
-      // }
-
-    //   // 更新前端 state（不用重新 GET）
-    //   setHistory((prev) =>
-    //     prev
-    //       .filter((item) => item.id !== setToDelete.id) // 移除被刪的
-    //       .map((item) => {
-    //         if (
-    //           item.exercise_id === setToDelete.exercise_id &&
-    //           new Date(item.date).toLocaleDateString() ===
-    //             new Date(setToDelete.date).toLocaleDateString() &&
-    //           item.set_number > deletedSetNumber
-    //         ) {
-    //           return {
-    //             ...item,
-    //             set_number: item.set_number - 1,
-    //           };
-    //         }
-    //         return item;
-    //       })
-    //   );
-    //   setEditSet(null); // 關閉編輯視窗
-    // } catch (err) {
-    //   console.error(err);
-    //   alert("Delete failed");
-    // }
   };
   return (
     <div style={{ padding: "20px" }}>
@@ -303,26 +267,34 @@ export default function WorkoutHistoryPage(){
             </label>
           </div>
 
-          <div style={{ display: "flex" }}>
-            <button onClick={handleSave} style={{ marginRight: "10px" }}>
-              Save
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <button 
+              onClick={handleSave}
+              disabled={isProcessing} // 處理中禁用
+              style={{ marginRight: "10px" }}>
+                {isProcessing ? "Saving..." : "Save"}
             </button>
 
-            <button onClick={() => setEditSet(null)}>Cancel</button>
+            <button 
+              onClick={() => setEditSet(null)}
+              disabled={isProcessing}>
+                Cancel
+            </button>
 
             <button
               onClick={() => handleDelete(editSet)}
+              disabled={isProcessing} // 處理中禁用
               style={{
                 marginLeft: "auto",
-                background: "red",
+                background: isProcessing ? "#ccc" : "red", // 變灰色
                 color: "white",
                 border: "none",
                 padding: "5px 10px",
                 borderRadius: "5px",
-                cursor: "pointer",
+                cursor: isProcessing ? "not-allowed" : "pointer", // 滑鼠變成禁用圖示
               }}
             >
-              Delete
+              {isProcessing ? "Deleting..." : "Delete"}
             </button>
           </div>
         </div>
