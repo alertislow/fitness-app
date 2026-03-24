@@ -106,7 +106,7 @@ export default function WorkoutHistoryPage(){
           item.set_number > deletedIndex
         );
       });
-      console.log("確定要更新的清單:", needUpdateSets);
+      // console.log("確定要更新的清單:", needUpdateSets);
       // 3. 更新資料庫 (只傳後端需要的 4 個欄位)
       await Promise.all(
         needUpdateSets.map(item => 
@@ -181,19 +181,20 @@ export default function WorkoutHistoryPage(){
       {/* 當天 exercise + sets */}
       {selectedDate && !editSet && (
         <>
-          <button onClick={() => {setSelectedDate(null); setExpandedExId(null);}} style={{ marginBottom: "20px" }}>
-            Back to Dates
+          <button 
+            onClick={() => {setSelectedDate(null); setExpandedExId(null);}} 
+            style={{ marginBottom: "20px" }}
+          >
+            ← Back to Dates
           </button>
 
-          {Object.keys(groupedByDate[selectedDate]).map((exerciseId) => {
+          {groupedByDate[selectedDate] ? (
+            Object.keys(groupedByDate[selectedDate]).map((exerciseId) => {
             const sets = groupedByDate[selectedDate][exerciseId];
-            const exerciseName =
-              exerciseMap[exerciseId] || "Unknown Exercise";
+            const exerciseName = exerciseMap[exerciseId] || "Unknown Exercise";
             const isExpanded = expandedExId === exerciseId; // 判斷是否展開
-            const totalVolume = sets.reduce(
-              (sum, set) => sum + set.weight * set.reps,
-              0
-            );
+            const totalVolume = sets.reduce((sum, set) => sum + set.weight * set.reps,0);
+
             return (
               <div
                 key={exerciseId}
@@ -247,32 +248,16 @@ export default function WorkoutHistoryPage(){
                         <span>{set.weight} kg × {set.reps}</span>
                       </div>
                     ))}
-              {/* <h3>{exerciseName}</h3>
-              <div style={{ fontSize: "14px", color: "#555" }}>
-                Total: {totalVolume.toLocaleString()} kg
-              </div>
-              {sets
-                .sort((a, b) => a.set_number - b.set_number)
-                .map((set) => (
-                  <div
-                    key={set.id}
-                    style={{
-                      padding: "8px",
-                      borderBottom: "1px solid #eee",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setEditSet(set)}
-                  >
-                    Set {set.set_number} — {set.weight} kg × {set.reps}
-                  </div>
-                ))} */}
                 </div>
-              )}
-          </div>
-        );
-      })}
-      {/* 這裡預留給圓餅圖 */}
-          {/* <WorkoutSummaryPieChart data={groupedByDate[selectedDate]} /> */}
+                )}
+              </div>
+              );
+            })
+          ) : (
+            <div style={{ textAlign: "center", marginTop: "20px" }}>
+              <p>該日期的記錄已全部刪除</p>
+            </div>
+          )}
         </>
       )}
       {/* 編輯畫面（獨立） */}
