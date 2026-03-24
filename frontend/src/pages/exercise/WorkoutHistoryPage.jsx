@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getWorkoutHistory, updateWorkoutSet, deleteWorkoutSet } from "../../api/workoutApi.js" // 從後端抓 workout history、更新 set、刪除 set
 import { getExerciseList } from "../../api/exerciseAPI.js"; // 用來顯示 exercise name
+import { WorkoutSummaryPieChart } from "../../components/WorkoutPieChart.jsx"; // 圖表元件
 
 export default function WorkoutHistoryPage(){
   const navigate = useNavigate()
@@ -189,77 +190,88 @@ export default function WorkoutHistoryPage(){
           </button>
 
           {groupedByDate[selectedDate] ? (
-            Object.keys(groupedByDate[selectedDate]).map((exerciseId) => {
-            const sets = groupedByDate[selectedDate][exerciseId];
-            const exerciseName = exerciseMap[exerciseId] || "Unknown Exercise";
-            const isExpanded = expandedExId === exerciseId; // 判斷是否展開
-            const totalVolume = sets.reduce((sum, set) => sum + set.weight * set.reps,0);
+            <>
+            {/* 1. 摺疊動作清單 */}
+            {Object.keys(groupedByDate[selectedDate]).map((exerciseId) => {
+              const sets = groupedByDate[selectedDate][exerciseId];
+              const exerciseName = exerciseMap[exerciseId] || "Unknown Exercise";
+              const isExpanded = expandedExId === exerciseId; // 判斷是否展開
+              const totalVolume = sets.reduce((sum, set) => sum + set.weight * set.reps,0);
 
-            return (
-              <div
-                key={exerciseId}
-                style={{
-                  border: "1px solid #444",
-                  marginBottom: "10px",
-                  borderRadius: "8px",
-                  overflow: "hidden", // 確保圓角
-                  backgroundColor: "#1a1a1a"
-                }}
-              >
-              {/* 標題欄：點擊切換展開/縮合 */}
-              <div 
-                onClick={() => setExpandedExId(isExpanded ? null : exerciseId)}
-                style={{
-                  padding: "15px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  cursor: "pointer",
-                  backgroundColor: isExpanded ? "#333" : "transparent",
-                  transition: "background 0.3s"
-                }}
-              >
-                <div>
-                  <strong style={{ fontSize: "1.1rem" }}>{exerciseName}</strong>
-                  <div style={{ fontSize: "12px", color: "#aaa" }}>
-                    Total: {totalVolume.toLocaleString()} kg | {sets.length} Sets
+              return (
+                <div
+                  key={exerciseId}
+                  style={{
+                    border: "1px solid #444",
+                    marginBottom: "10px",
+                    borderRadius: "8px",
+                    overflow: "hidden", // 確保圓角
+                    backgroundColor: "#1a1a1a"
+                  }}
+                >
+                {/* 標題欄：點擊切換展開/縮合 */}
+                <div 
+                  onClick={() => setExpandedExId(isExpanded ? null : exerciseId)}
+                  style={{
+                    padding: "15px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    backgroundColor: isExpanded ? "#333" : "transparent",
+                    transition: "background 0.3s"
+                  }}
+                >
+                  <div>
+                    <strong style={{ fontSize: "1.1rem" }}>{exerciseName}</strong>
+                    <div style={{ fontSize: "12px", color: "#aaa" }}>
+                      Total: {totalVolume.toLocaleString()} kg | {sets.length} Sets
+                    </div>
                   </div>
+                  <span>{isExpanded ? "▲" : "▼"}</span>
                 </div>
-                <span>{isExpanded ? "▲" : "▼"}</span>
-              </div>
-              {/* 內容區：僅在 isExpanded 為 true 時顯示 */}
-              {isExpanded && (
-                <div style={{ padding: "10px", borderTop: "1px solid #444", backgroundColor: "#111" }}>
-                  {sets
-                    .sort((a, b) => a.set_number - b.set_number)
-                    .map((set) => (
-                      <div
-                        key={set.id}
-                        style={{
-                          padding: "12px",
-                          borderBottom: "1px solid #222",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          cursor: "pointer"
-                        }}
-                        onClick={() => setEditSet(set)}
-                      >
-                        <span>Set {set.set_number}</span>
-                        <span>{set.weight} kg × {set.reps}</span>
-                      </div>
-                    ))}
+                {/* 內容區：僅在 isExpanded 為 true 時顯示 */}
+                {isExpanded && (
+                  <div style={{ padding: "10px", borderTop: "1px solid #444", backgroundColor: "#111" }}>
+                    {sets
+                      .sort((a, b) => a.set_number - b.set_number)
+                      .map((set) => (
+                        <div
+                          key={set.id}
+                          style={{
+                            padding: "12px",
+                            borderBottom: "1px solid #222",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            cursor: "pointer"
+                          }}
+                          onClick={() => setEditSet(set)}
+                        >
+                          <span>Set {set.set_number}</span>
+                          <span>{set.weight} kg × {set.reps}</span>
+                        </div>
+                      ))}
+                  </div>
+                  )}
                 </div>
-                )}
-              </div>
               );
-            })
+            })}
+            {/* 2. 圓餅圖分析 */}
+              <hr style={{ border: "0.5px solid #444", margin: "30px 0" }} />
+              <WorkoutSummaryPieChart 
+                dailyData={groupedByDate[selectedDate]} 
+                exerciseList={exerciseList} 
+              />
+            </>
           ) : (
-            <div style={{ textAlign: "center", marginTop: "20px" }}>
-              <p>該日期的記錄已全部刪除</p>
-            </div>
-          )}
+              /* 3. 無資料時的顯示 */
+              <div style={{ textAlign: "center", marginTop: "20px" }}>
+                <p>該日期的記錄已全部刪除</p>
+              </div>
+            )}
         </>
       )}
+      
       {/* 編輯畫面（獨立） */}
       {editSet && (
         <div style={{ border: "1px solid #ddd", padding: "10px", borderRadius: "8px" }}>
