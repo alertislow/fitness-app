@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000"; 
+import { API_BASE_URL } from './config';
 
 // ---------------------------
 // Token 管理
@@ -15,7 +15,7 @@ export function logout() {
 // 登入
 // ---------------------------
 export async function login(email, password) {
-  const res = await fetch(`${API_URL}/auth/login`, {
+  const res = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password })
@@ -35,7 +35,7 @@ export async function login(email, password) {
 // 註冊
 // ---------------------------
 export async function register(email, password) {
-  const res = await fetch(`${API_URL}/auth/register`, {
+  const res = await fetch(`${API_BASE_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password })
@@ -57,7 +57,7 @@ export function logoutAPI() {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  return fetch(`${API_URL}/auth/logout`, {
+  return fetch(`${API_BASE_URL}/auth/logout`, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`

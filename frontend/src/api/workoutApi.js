@@ -3,15 +3,15 @@
 // getWorkoutHistory()
 // updateWorkoutSet(id, data)
 // deleteWorkoutSet(id)
+import { API_BASE_URL } from './config';
 
-const API_URL = "http://localhost:8000"
 // 新增儲存訓練紀錄的 API 呼叫
 export async function saveWorkoutSet(data){
   const token = localStorage.getItem("token")
   if(!token){
     throw new Error("No token")
   }
-  const res = await fetch(`${API_URL}/workout/set`,{
+  const res = await fetch(`${API_BASE_URL}/workout/set`,{
     method:"POST",
     headers:{
       "Content-Type":"application/json",
@@ -28,7 +28,7 @@ export async function getWorkoutHistory(){
   if(!token){
       throw new Error("No token")
   }
-  const res = await fetch(`${API_URL}/workout/history`,{
+  const res = await fetch(`${API_BASE_URL}/workout/history`,{
     headers:{
     "Authorization":`Bearer ${token}`
     }
@@ -42,7 +42,7 @@ export async function updateWorkoutSet(id,data){
   if(!token){
     throw new Error("No token")
   }
-  const res = await fetch(`${API_URL}/workout/set/${id}`,{
+  const res = await fetch(`${API_BASE_URL}/workout/set/${id}`,{
     method:"PUT",
     headers:{
     "Content-Type":"application/json",
@@ -60,7 +60,7 @@ export async function deleteWorkoutSet(id){
   if(!token){
     throw new Error("No token")
   }
-  const res = await fetch(`${API_URL}/workout/set/${id}`,{
+  const res = await fetch(`${API_BASE_URL}/workout/set/${id}`,{
     method:"DELETE",
     headers:{
     "Authorization":`Bearer ${token}`
