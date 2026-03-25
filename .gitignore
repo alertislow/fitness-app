@@ -11,10 +11,11 @@ venv/
 __pycache__/
 *.pyc
 **/__pycache__/
-
+*.venv
 # Database
 *.sqlite3
 db.sqlite3
 *.db
+fitness_app.db
 # Environment variables
 .env
