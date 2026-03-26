@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # 優先讀取環境變數中的 DATABASE_URL
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./fitness_app.db")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./fitness.db")
 
 # Render/Supabase 的修正邏輯
 if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
