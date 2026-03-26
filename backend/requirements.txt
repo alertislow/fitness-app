@@ -7,4 +7,5 @@ psycopg2-binary  # 這是連接 PostgreSQL 必備的
 python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
+bcrypt==4.0.1
 gunicorn

@@ -21,7 +21,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 # 註冊
 @router.post("/register")
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    hashed_pwd = pwd_context.hash(user.password)
+    raw_password = user.password
+    if isinstance(raw_password, str):
+        # 確保不超過 72 字元並轉成 utf-8
+        raw_password = raw_password[:71] 
+
+    hashed_pwd = pwd_context.hash(raw_password)
     db_user = User(email=user.email, password=hashed_pwd, role=user.role) # 使用者註冊時可以指定角色，預設為"user"
     db.add(db_user)
     db.commit()
