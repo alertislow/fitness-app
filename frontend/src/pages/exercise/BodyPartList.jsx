@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from './config';
 
 export default function BodyPartList() {
   const [bodyParts, setBodyParts] = useState([]);
@@ -9,7 +10,7 @@ export default function BodyPartList() {
     navigate(`/exercise/body-part/${id}`);
   };
   useEffect(() => {
-    fetch("http://localhost:8000/exercise/body-parts")
+    fetch(`${API_BASE_URL}/exercise/body-parts`)
       .then(res => res.json())
       .then(data => setBodyParts(data))
       .catch(err => console.error(err));
