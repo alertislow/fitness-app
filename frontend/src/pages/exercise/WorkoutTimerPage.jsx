@@ -5,7 +5,7 @@ import startSound from "/sounds/swoosh-sound-effects.mp3";
 import restSound from "/sounds/swoosh-2.mp3";
 import finishSound from "/sounds/bababoi.mp3";
 import { saveWorkoutSet } from "../../api/workoutApi.js"
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from '../../api/config.js';
 
 export default function WorkoutTimerPage(){
   const { exerciseId } = useParams();  // exercise_id

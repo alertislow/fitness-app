@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from '../../api/config.js';
 
 export default function WorkoutSetupPage() {
 
