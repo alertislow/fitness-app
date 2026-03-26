@@ -6,7 +6,7 @@ import { WorkoutSummaryPieChart } from "../../components/WorkoutPieChart.jsx"; /
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // 基本樣式
 import './CalendarCustom.css'; // 我們等一下要寫的自定義樣式
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from '../../api/config.js';
 
 export default function WorkoutHistoryPage(){
   const navigate = useNavigate()
