@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 export default function WorkoutSetupPage() {
 
-  const { name } = useParams();
+  const { exerciseId } = useParams(); // exercise_id
   const navigate = useNavigate();
-
-  const storageKey = `workout_${name}`;  // 每個動作獨立的儲存鍵
-
+  const location = useLocation();
+  const { bodyPartId } = location.state || {};  // 用作返回按鈕
+  const [exercise, setExercise] = useState(null);
+  const storageKey = `workout_${exerciseId}`;  // 每個動作獨立的儲存鍵
+  
   // 預設值
   const [sets, setSets] = useState(5);
   const [reps, setReps] = useState(10);
@@ -15,8 +17,9 @@ export default function WorkoutSetupPage() {
   const [workTime, setWorkTime] = useState(90);
   const [restTime, setRestTime] = useState(120);
 
-  // 載入記錄
+  // 載入localStorage記錄
   useEffect(() => {
+    if (!exerciseId) return;
     const saved = localStorage.getItem(storageKey);
     if (saved) {
       const data = JSON.parse(saved);
@@ -26,7 +29,16 @@ export default function WorkoutSetupPage() {
       setWorkTime(data.workTime);
       setRestTime(data.restTime);
     }
-  }, [storageKey]);
+  }, [exerciseId, storageKey]);
+
+  // 在 useEffect 中 fetch 該 exercise
+  useEffect(() => {
+    if (!exerciseId) return;
+    fetch(`http://localhost:8000/exercise/${exerciseId}`)
+      .then(res => res.json())
+      .then(data => setExercise(data))
+      .catch(err => console.error(err));
+  }, [exerciseId]);
 
   // 儲存設定
   const saveSettings = () => {
@@ -36,13 +48,17 @@ export default function WorkoutSetupPage() {
 
   const startWorkout = () => {
     saveSettings();
-    navigate(`/exercise/timer/${name}`);
+    navigate(`/exercise/timer/${exerciseId}`);
   };
 
   return (
+    
     <div style={{ padding: "20px", maxWidth: "400px", margin: "auto" }}>
-
-      <h1>{name}</h1>
+      {/* 返回按鈕 */}
+      <button onClick={() => navigate(`/exercise/body-part/${bodyPartId}`)}>
+        ← Back
+      </button>
+      <h1>{exercise ? exercise.name : `Exercise ID: ${exerciseId}`}</h1>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
 

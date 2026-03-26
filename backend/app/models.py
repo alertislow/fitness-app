@@ -25,38 +25,28 @@ class Exercise(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    description = Column(String)
     body_part_id = Column(Integer, ForeignKey("body_parts.id"))
 
-
-class Workout(Base):
-    __tablename__ = "workouts"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    # exercise_id = Column(Integer, ForeignKey("exercises.id"), nullable=True)  # exercise_id 可以為空，因爲有些訓練可能沒有對應的 exercise（例如自由訓練） 
-    exercise = Column(String)  
-    sets = Column(Integer)
-    reps = Column(Integer)
-    weight = Column(Integer)
-    date = Column(DateTime, default=datetime.utcnow)
-
-
-class Note(Base):
-    __tablename__ = "notes"
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    content = Column(String)
 
 # workout history table, 包含日期、exercise、sets、reps、weight等資訊，讓使用者可以查看過去的訓練紀錄
 class WorkoutSet(Base):
     __tablename__ = "workout_sets"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer)
-    exercise = Column(String)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    exercise_id = Column(Integer, ForeignKey("exercises.id"))
     set_number = Column(Integer)
     reps = Column(Integer)
     weight = Column(Float)
-    date = Column(DateTime)
+    date = Column(DateTime, default=datetime.utcnow)
+
+class Note(Base):
+    __tablename__ = "notes"
+
+    id = Column(Integer, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"))
+    exercise_id = Column(Integer, ForeignKey("exercises.id")) 
+
+    content = Column(String)
+    image_url = Column(String, nullable=True)  # 之後放圖片
