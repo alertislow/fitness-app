@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from './config';
 
 export default function ExerciseList() {
   const { id } = useParams();  // body part id
@@ -8,7 +9,7 @@ export default function ExerciseList() {
 
   // 根據 body part id 獲取 exercise list
   useEffect(() => {
-  fetch("http://localhost:8000/exercise/list")
+  fetch(`${API_BASE_URL}/exercise/list`)
     .then(res => res.json())
     .then(data => {
       // 過濾該 body part

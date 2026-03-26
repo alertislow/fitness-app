@@ -6,6 +6,7 @@ import { WorkoutSummaryPieChart } from "../../components/WorkoutPieChart.jsx"; /
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // 基本樣式
 import './CalendarCustom.css'; // 我們等一下要寫的自定義樣式
+import { API_BASE_URL } from './config';
 
 export default function WorkoutHistoryPage(){
   const navigate = useNavigate()
@@ -21,7 +22,7 @@ export default function WorkoutHistoryPage(){
       try {
         const historyRes = await getWorkoutHistory();
         // 🔥 1. fetch exercise list
-        const exerciseRes = await fetch("http://localhost:8000/exercise/list", {
+        const exerciseRes = await fetch(`${API_BASE_URL}/exercise/list`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

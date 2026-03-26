@@ -5,6 +5,7 @@ import startSound from "/sounds/swoosh-sound-effects.mp3";
 import restSound from "/sounds/swoosh-2.mp3";
 import finishSound from "/sounds/bababoi.mp3";
 import { saveWorkoutSet } from "../../api/workoutApi.js"
+import { API_BASE_URL } from './config';
 
 export default function WorkoutTimerPage(){
   const { exerciseId } = useParams();  // exercise_id
@@ -107,7 +108,7 @@ export default function WorkoutTimerPage(){
 
   // 在 useEffect 中 fetch 該 exercise
   useEffect(() => {
-    fetch(`http://localhost:8000/exercise/${exerciseId}`)
+    fetch(`${API_BASE_URL}/exercise/${exerciseId}`)
       .then(res => res.json())
       .then(data => setExercise(data))
       .catch(err => console.error(err));

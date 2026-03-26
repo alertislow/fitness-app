@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { API_BASE_URL } from './config';
 
 export default function WorkoutSetupPage() {
 
@@ -34,7 +35,7 @@ export default function WorkoutSetupPage() {
   // 在 useEffect 中 fetch 該 exercise
   useEffect(() => {
     if (!exerciseId) return;
-    fetch(`http://localhost:8000/exercise/${exerciseId}`)
+    fetch(`${API_BASE_URL}/exercise/${exerciseId}`)
       .then(res => res.json())
       .then(data => setExercise(data))
       .catch(err => console.error(err));
