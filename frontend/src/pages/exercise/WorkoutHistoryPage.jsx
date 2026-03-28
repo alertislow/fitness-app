@@ -5,7 +5,7 @@ import { getExerciseList } from "../../api/exerciseAPI.js"; // 用來顯示 exer
 import { WorkoutSummaryPieChart } from "../../components/WorkoutPieChart.jsx"; // 圖表元件
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // 基本樣式
-import './CalendarCustom.css'; // 我們等一下要寫的自定義樣式
+import './CalendarCustom.css'; // 日曆自定義樣式
 import { API_BASE_URL } from '../../api/config.js';
 
 export default function WorkoutHistoryPage(){
@@ -235,7 +235,7 @@ export default function WorkoutHistoryPage(){
                       marginBottom: "10px",
                       borderRadius: "8px",
                       overflow: "hidden", // 確保圓角
-                      backgroundColor: "#1a1a1a"
+                      backgroundColor: "salmon"
                     }}
                   >
                   {/* 標題欄：點擊切換展開/縮合 */}
@@ -247,13 +247,13 @@ export default function WorkoutHistoryPage(){
                       justifyContent: "space-between",
                       alignItems: "center",
                       cursor: "pointer",
-                      backgroundColor: isExpanded ? "#333" : "transparent",
+                      backgroundColor: isExpanded ? "salmon" : "transparent",
                       transition: "background 0.3s"
                     }}
                   >
                     <div>
                       <strong style={{ fontSize: "1.1rem" }}>{exerciseName}</strong>
-                      <div style={{ fontSize: "12px", color: "#aaa" }}>
+                      <div style={{ fontSize: "12px", color: "#050505" }}>
                         Total: {totalVolume.toLocaleString()} kg | {sets.length} Sets
                       </div>
                     </div>
@@ -261,7 +261,7 @@ export default function WorkoutHistoryPage(){
                   </div>
                   {/* 內容區：僅在 isExpanded 為 true 時顯示 */}
                   {isExpanded && (
-                    <div style={{ padding: "10px", borderTop: "1px solid #444", backgroundColor: "#111" }}>
+                    <div style={{ padding: "10px", borderTop: "1px solid #444", backgroundColor: "salmon" }}>
                       {sets
                         .sort((a, b) => a.set_number - b.set_number)
                         .map((set) => (
