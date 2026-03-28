@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from app.database import get_db
 from app.schemas import WorkoutCreate, WorkoutUpdate
-from app.models import WorkoutSet
+from app.models import WorkoutSet, WorkoutHistory
 from app.core.security import get_current_user_id # JWT function
 from typing import List
 
@@ -58,7 +58,6 @@ def get_history(
     current_user_id: int = Depends(get_current_user_id) # 從 JWT token 獲取當前用戶的 ID
 ):
     workouts = db.query(WorkoutSet).filter(WorkoutSet.user_id == current_user_id).all()
-    # print("current_user_id:", current_user_id)
     return {
         "total": len(workouts),
         "data": workouts
@@ -99,3 +98,13 @@ def delete_set(id: int, db: Session = Depends(get_db)):
 
     return {"status": "deleted"}
 
+# 輕量化API，讓日曆得知哪一天有運動並標示圖示，不用每次都要讀取整筆 get_history 影響效能
+@router.get("/active-dates")
+def get_active_dates(db: Session = Depends(get_db), current_user_id = Depends(get_current_user_id)):
+    # 只抓取日期
+    dates = db.query(WorkoutHistory.date).filter(
+        WorkoutHistory.user_id == current_user_id
+    ).distinct().all()
+    
+    # 回傳格式如: ["2026-03-23", "2026-03-24", "2026-03-25", "2026-03-26"]
+    return [d[0].strftime("%Y-%m-%d") for d in dates]
