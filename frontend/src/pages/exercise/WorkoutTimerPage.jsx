@@ -61,25 +61,7 @@ export default function WorkoutTimerPage(){
       console.error("存儲 workout 失敗:", err);
     }
   };
-  // 存入 workout history
-  // async function saveSet(){
-  //   if (!exerciseId) {
-  //     console.error("exercise_id 尚未取得");
-  //     return;
-  //   }
-  //   try {
-  //     await saveWorkoutSet({
-  //       exercise_id: Number(exerciseId), // 確保是整數
-  //       weight: weight,
-  //       reps: reps,
-  //       // set_number: currentSet // 🔥 後端會自動計算 set_number，前端不需要傳
-  //     });
-  //     console.log("Workout set saved!");
-  //   } catch (err) {
-  //     console.error("存儲 workout 失敗:", err);
-  //   }
-
-  // }
+  
   function formatTime(sec){
     const m = Math.floor(sec/60)
     const s = sec%60
