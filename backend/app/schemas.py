@@ -42,3 +42,13 @@ class ExerciseOut(ExerciseBase):
 
     class Config:
         from_attributes = True  # Pydantic V2 的新寫法
+
+# 用戶資料輸出格式，過濾密碼
+class UserRead(BaseModel):
+    id: int
+    email: str
+    # 如果你有其他想顯示的欄位可以加在這裡，例如：
+    # username: Optional[str] = None
+
+    class Config:
+        from_attributes = True # 這行很重要，讓 Pydantic 可以讀取 SQLAlchemy 物件
