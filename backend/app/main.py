@@ -17,7 +17,12 @@ app.include_router(exercise_router)
 # CORS設定，允許前端應用訪問 API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 或 ["http://localhost:3000"],["http://localhost:5173"]
+    # allow_origins=["*"],  # 或 ["http://localhost:3000"],["http://localhost:5173"]
+    # 如果 allow_credentials 設定為 True，則 allow_origins 不能使用通配符 *必須明確寫出網址
+    allow_origins=[
+        "http://localhost:5173", 
+        "https://fitness-app-drab-nine.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
