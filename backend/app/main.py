@@ -27,3 +27,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 純粹用來喚醒Render減少讀取時間，不做任何功能
+@app.get("/ping")
+async def ping():
+    # 這個路由不呼叫 get_db，不查詢 SQL
+    # 對 Render 來說，只要有 HTTP Request 進來，它就會啟動
+    return {"status": "ok", "message": "Backend is awake"}
