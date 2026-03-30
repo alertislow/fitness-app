@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine
+from sqlalchemy import create_all,create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -18,8 +18,13 @@ else:
     # PostgreSQL 不需要額外參數
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
-        pool_pre_ping=True,
-        pool_recycle=3600
+        pool_pre_ping=True,    # 每次使用前先「敲門」，避免 EOF 錯誤
+        pool_recycle=300,      # 每 5 分鐘回收連線，避免被雲端防火牆強制切斷
+        # 限制連線數
+        pool_size=5,           
+        max_overflow=10,
+        # 設定連線逾時，如果資料庫真的掛了，不要讓前端等太久
+        connect_args={"connect_timeout": 10}
     )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
