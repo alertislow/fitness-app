@@ -1,0 +1,46 @@
+/* 讓日曆容器在手機上置中且滿版 */
+.react-calendar {
+  width: 100% !important;
+  max-width: 400px; /* 適合手機寬度 */
+  background-color: #1a1a1a !important; /* 配合你的深色背景 */
+  color: white !important;
+  border: none !important;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+/* 調整每一格日期 */
+.react-calendar__tile {
+  height: 70px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative;
+  padding: 1em 0.5em !important;
+}
+
+/* 肌肉圖示微調 */
+.workout-marker {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  font-size: 12px;
+  /* 加上一點陰影讓表情更立體 */
+  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
+}
+
+/* 選中日期的樣式 */
+.react-calendar__tile--active {
+  background: #007bff !important;
+  color: white;
+  border-radius: 50%; /* 讓選中的日期變成圓形，更有質感 */
+}
+
+/* 滑過日期的背景（手機觸控） */
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: #333 !important;
+  border-radius: 8px;
+}

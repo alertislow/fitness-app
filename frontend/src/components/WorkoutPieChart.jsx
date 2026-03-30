@@ -34,7 +34,7 @@ export const WorkoutSummaryPieChart = ({ dailyData, exerciseList }) => {
   if (totalSets === 0) return null;
 
   return (
-    <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '12px' }}>
+    <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff', borderRadius: '12px' }}>
       <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>當日訓練部位分析 (總組數: {totalSets} 組)</h3>
       <div style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>

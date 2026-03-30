@@ -5,7 +5,7 @@ import { getExerciseList } from "../../api/exerciseAPI.js"; // 用來顯示 exer
 import { WorkoutSummaryPieChart } from "../../components/WorkoutPieChart.jsx"; // 圖表元件
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // 基本樣式
-import './CalendarCustom.css'; // 我們等一下要寫的自定義樣式
+import '../../styles/CalendarCustom.css'; // 日曆自定義樣式
 import { API_BASE_URL } from '../../api/config.js';
 
 export default function WorkoutHistoryPage(){
@@ -16,6 +16,7 @@ export default function WorkoutHistoryPage(){
   const [editSet, setEditSet] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false); // 編輯與刪除的loading狀態
   const [expandedExId, setExpandedExId] = useState(null); // 用來控制同一天的 exercise 展開收合
+  const [activeDates, setActiveDates] = useState([]); // 儲存 API 回傳的日期陣列
   
   useEffect(() => {
     async function loadData() {
@@ -111,7 +112,6 @@ export default function WorkoutHistoryPage(){
           item.set_number > deletedIndex
         );
       });
-      // console.log("確定要更新的清單:", needUpdateSets);
       // 3. 更新資料庫 (只傳後端需要的 4 個欄位)
       await Promise.all(
         needUpdateSets.map(item => 
@@ -154,13 +154,42 @@ export default function WorkoutHistoryPage(){
     }
   };
 
-  // 1. 檢查日期是否有紀錄的函式
+  // 獲取日期
+  useEffect(() => {
+      const fetchActiveDates = async () => {
+        try{
+          const res = await fetch(`${API_BASE_URL}/workout/active-dates`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          });
+          const data = await res.json();
+          // data 格式會是 ["2026-03-26", "2026-03-28"]
+          setActiveDates(data); 
+        } catch (error) {
+          console.error("無法取得運動日期:", error);
+        }
+      };
+      fetchActiveDates();
+  }, []);
+
+  // 修改日曆內容判定
   const getTileContent = ({ date, view }) => {
+    // 1. 安全檢查：如果 activeDates 還沒載入，先不渲染內容
+    if (!activeDates || !Array.isArray(activeDates)) return null;
+
     if (view === 'month') {
-      // 轉換成跟 history 一致的日期格式
-      const dateString = date.toLocaleDateString();
-      if (groupedByDate[dateString]) {
-        return <div className="workout-marker">💪</div>;
+      // 使用穩定的 YYYY-MM-DD 格式
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateString = `${year}-${month}-${day}`;
+
+      // 直接在陣列中尋找，效能極佳
+      if (activeDates.includes(dateString)) {
+        return (
+          <div className="workout-marker">
+            <span role="img" aria-label="muscle">💪</span>
+          </div>
+        );
       }
     }
     return null;
@@ -175,7 +204,7 @@ export default function WorkoutHistoryPage(){
       <h1>Workout History</h1>
 
       {/* 日期列表 */}
-      {!selectedDate && (
+      {/* {!selectedDate && (
         <>
           {Object.keys(groupedByDate).length === 0 && <p>No workouts yet</p>}
           {Object.keys(groupedByDate).map((date) => (
@@ -194,7 +223,7 @@ export default function WorkoutHistoryPage(){
             </div>
           ))}
         </>
-      )}
+      )} */}
       {/* 2. 顯示日曆 (僅在未選擇特定日期時顯示) */}
       {!selectedDate && !editSet && (
         <div className="calendar-wrapper">
@@ -207,7 +236,7 @@ export default function WorkoutHistoryPage(){
           />
         </div>
       )}
-      {/* 3. 選中日期後顯示的詳細內容 (原本你寫好的摺疊列表+圓餅圖) */}
+      {/* 3. 選中日期後顯示的詳細內容 (摺疊列表+圓餅圖) */}
       {selectedDate && !editSet && (
         <div className="daily-detail">
           <>
@@ -235,7 +264,7 @@ export default function WorkoutHistoryPage(){
                       marginBottom: "10px",
                       borderRadius: "8px",
                       overflow: "hidden", // 確保圓角
-                      backgroundColor: "#1a1a1a"
+                      backgroundColor: "salmon"
                     }}
                   >
                   {/* 標題欄：點擊切換展開/縮合 */}
@@ -247,13 +276,13 @@ export default function WorkoutHistoryPage(){
                       justifyContent: "space-between",
                       alignItems: "center",
                       cursor: "pointer",
-                      backgroundColor: isExpanded ? "#333" : "transparent",
+                      backgroundColor: isExpanded ? "salmon" : "transparent",
                       transition: "background 0.3s"
                     }}
                   >
                     <div>
                       <strong style={{ fontSize: "1.1rem" }}>{exerciseName}</strong>
-                      <div style={{ fontSize: "12px", color: "#aaa" }}>
+                      <div style={{ fontSize: "12px", color: "#050505" }}>
                         Total: {totalVolume.toLocaleString()} kg | {sets.length} Sets
                       </div>
                     </div>
@@ -261,7 +290,7 @@ export default function WorkoutHistoryPage(){
                   </div>
                   {/* 內容區：僅在 isExpanded 為 true 時顯示 */}
                   {isExpanded && (
-                    <div style={{ padding: "10px", borderTop: "1px solid #444", backgroundColor: "#111" }}>
+                    <div style={{ padding: "10px", borderTop: "1px solid #444", backgroundColor: "salmon" }}>
                       {sets
                         .sort((a, b) => a.set_number - b.set_number)
                         .map((set) => (
@@ -295,7 +324,7 @@ export default function WorkoutHistoryPage(){
             ) : (
                 /* 3. 無資料時的顯示 */
                 <div style={{ textAlign: "center", marginTop: "20px" }}>
-                  <p>該日期的記錄已全部刪除</p>
+                  <p>No workout yet</p>
                 </div>
               )}
           </>

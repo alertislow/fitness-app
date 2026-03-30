@@ -29,7 +29,7 @@ class Exercise(Base):
 
 
 # workout history table, 包含日期、exercise、sets、reps、weight等資訊，讓使用者可以查看過去的訓練紀錄
-class WorkoutSet(Base):
+class WorkoutHistory(Base):
     __tablename__ = "workout_sets"
 
     id = Column(Integer, primary_key=True, index=True)
