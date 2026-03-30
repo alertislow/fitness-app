@@ -1,0 +1,21 @@
+:root {
+  /* 定義一些全域變數，方便統一修改 */
+  --primary-color: #007bff;
+}
+
+* {
+  box-sizing: border-box;
+  /* 👈 核心：移除手機瀏覽器點擊時的藍色半透明方塊 */
+  -webkit-tap-highlight-color: transparent; 
+  /* 👈 防止手機版網頁在快速點擊時縮放，讓反應更快 */
+  touch-action: manipulation; 
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #fcfcfc; /* 配合你的白色基底 */
+  color: #333;
+  /* 👈 讓捲動更順暢（像原生 App 一樣有回彈感） */
+  -webkit-overflow-scrolling: touch; 
+}
