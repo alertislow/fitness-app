@@ -41,4 +41,4 @@ class ExerciseOut(ExerciseBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True  # Pydantic V2 的新寫法
