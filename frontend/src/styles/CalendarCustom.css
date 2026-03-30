@@ -1,46 +1,119 @@
-/* 讓日曆容器在手機上置中且滿版 */
+/* CalendarCustom.css - 滿版、正方形、帶分割線風格 */
+
 .react-calendar {
   width: 100% !important;
-  max-width: 400px; /* 適合手機寬度 */
-  background-color: #1a1a1a !important; /* 配合你的深色背景 */
-  color: white !important;
-  border: none !important;
-  border-radius: 12px;
+  max-width: 100% !important; 
+  margin: 0 auto;
+  background-color: #ffffff !important;
+  color: #333333 !important;
+  border: 1px solid #eeeeee !important; /* 外框線 */
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  font-family: inherit;
 }
 
-/* 調整每一格日期 */
+/* 1. 頂部導航列 */
+.react-calendar__navigation {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #eeeeee; /* 導航下方的分割線 */
+  padding: 15px 0;
+  margin-bottom: 0 !important;
+}
+
+/* 2. 星期幾標籤 */
+.react-calendar__month-view__weekdays {
+  background-color: #fafafa;
+  border-bottom: 1px solid #eeeeee; /* 星期下方的分割線 */
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  color: #888888 !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  padding: 12px 0;
+}
+
+/* 3. 核心修改：加入日期網格分割線 */
 .react-calendar__tile {
-  height: 70px !important;
+  aspect-ratio: 1 / 1; 
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
   position: relative;
-  padding: 1em 0.5em !important;
+  padding: 5px !important;
+  background: none !important;
+  
+  /* --- 加入分割線 --- */
+  border: 0.5px solid #eeeeee !important; /* 每個格子都有細線邊框 */
+  box-sizing: border-box; /* 確保邊框不會撐大格子 */
 }
 
-/* 肌肉圖示微調 */
+/* 移除重複重疊造成的粗線感（可選） */
+.react-calendar__viewContainer {
+  margin: -1px; /* 微調讓邊框重合 */
+}
+
+/* 4. 肌肉圖示：調整位置避免壓線 */
 .workout-marker {
   position: absolute;
-  bottom: 5px;
-  right: 5px;
-  font-size: 12px;
-  /* 加上一點陰影讓表情更立體 */
-  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
+  bottom: 8px;
+  right: 8px;
+  font-size: 1.1rem;
+  z-index: 2;
 }
 
-/* 選中日期的樣式 */
+/* 5. 選中日期的正圓形藍色外框 */
 .react-calendar__tile--active {
-  background: #007bff !important;
-  color: white;
-  border-radius: 50%; /* 讓選中的日期變成圓形，更有質感 */
+  color: #ffffff !important;
+  font-weight: bold;
 }
 
-/* 滑過日期的背景（手機觸控） */
-.react-calendar__tile:enabled:hover,
-.react-calendar__tile:enabled:focus {
-  background-color: #333 !important;
-  border-radius: 8px;
+.react-calendar__tile--active::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  max-width: 50px;
+  max-height: 50px;
+  background-color: #007bff;
+  border-radius: 50%;
+  z-index: 1; /* 放在分割線上方 */
+}
+
+/* 6. 讓日期數字在最上層 */
+.react-calendar__tile abbr {
+  position: relative;
+  z-index: 3;
+}
+
+/* 7. 「今天」的標示 */
+.react-calendar__tile--now::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  max-width: 50px;
+  max-height: 50px;
+  border: 2px solid #007bff;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* 8. 非本月日期背景稍微變灰 */
+.react-calendar__month-view__days__day--neighboringMonth {
+  background-color: #fcfcfc !important;
+  color: #d0d0d0 !important;
+}
+
+/* 9. 懸停效果 */
+.react-calendar__tile:enabled:hover {
+  background-color: #f8f9fa !important;
 }
