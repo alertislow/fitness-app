@@ -1,16 +1,16 @@
 from fastapi import Depends, HTTPException, APIRouter
-# from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta
+from typing import List
 
 from app.database import get_db
 from app.models import User
-# from fastapi.security import HTTPBearer
 from app.core.security import SECRET_KEY, ALGORITHM # 你的 JWT secret/algorithm
 from app import schemas
 from app.core.security import get_current_user_id
+from app.schemas import UserRead # 取得會員資料時過濾密碼
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 # 密碼加密設定
@@ -53,9 +53,11 @@ def login(user: schemas.LoginSchema, db: Session = Depends(get_db)):
     return {"access_token": token, "token_type": "bearer"}
 
 # 取得所有會員
-@router.get("/users")
+@router.get("/users",response_model=List[UserRead])
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
+    # 雖然這裡回傳的是包含 password 的 User 物件
+    # 但 FastAPI 會根據 UserRead 自動幫你把 password 過濾掉！
     return users
 
 
