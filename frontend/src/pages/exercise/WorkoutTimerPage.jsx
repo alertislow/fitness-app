@@ -26,6 +26,7 @@ export default function WorkoutTimerPage(){
   const [phase,setPhase] = useState("prepare")
   const [timeLeft,setTimeLeft] = useState(3)
   const [currentSet,setCurrentSet] = useState(1)
+  const [isPaused, setIsPaused] = useState(false); // 暫停狀態
 
   // 讀取是否跳過最後一組休息的設定
   const userSettings = JSON.parse(localStorage.getItem("user_settings")) || {};
@@ -74,10 +75,19 @@ export default function WorkoutTimerPage(){
       navigate("/login");
     }
     const timer = setInterval(()=>{
+      // 如果暫停中，就跳過這秒的邏輯
+      if (isPaused) return;
       setTimeLeft(prev=>{
+        // 音效播放邏輯
+        // Prepare 階段最後 3 秒
         if (phase === "prepare" && prev <= 3 && prev > 0) {
           tick.play();
         }
+        // Work 或 Rest 階段最後 5 秒 (排除 prepare 避免重複)
+        if ((phase === "work" || phase === "rest") && prev <= 5 && prev > 1) {
+          tick.play();
+        }
+        // 階段切換邏輯 ---
         if(prev<=1){
           nextPhase()
           return 0
@@ -86,7 +96,8 @@ export default function WorkoutTimerPage(){
       })
     },1000)
     return () => clearInterval(timer)
-}, [phase, currentSet])
+    // 包含 phase, currentSet, isPaused 以確保切換時計時器重置
+}, [phase, currentSet, isPaused])
 
   // 在 useEffect 中 fetch 該 exercise
   useEffect(() => {
@@ -101,8 +112,7 @@ export default function WorkoutTimerPage(){
       start.play();
       setPhase("work");
       setTimeLeft(workTime);
-    }
-    else if(phase==="work"){
+    } else if(phase==="work"){
       // 儲存剛完成的 set（但還沒 call API）
       handleFinishSet({
         reps: reps,
@@ -117,8 +127,7 @@ export default function WorkoutTimerPage(){
       rest.play()
       setPhase("rest")
       setTimeLeft(restTime)
-    }
-    else if(phase==="rest"){
+    } else if(phase==="rest"){
       // 正常 rest 結束，進下一組
       if(currentSet>=totalSets){
         setPhase("done")
@@ -160,39 +169,54 @@ export default function WorkoutTimerPage(){
 
 const circleSize = 220
 
-return(
+  return(
+    <div style={{textAlign:"center",padding:"40px"}}>
+      <h1>{exercise ? exercise.name : `Exercise ID: ${exerciseId}`}</h1>
+      <h2>Set {currentSet}/{totalSets}</h2>
+      <div style={{marginBottom:"10px"}}>
+        <strong>{weight} kg</strong>  
+        <br/>
+        {reps} reps
+      </div>
+      <h3>{phase.toUpperCase()}</h3>
+      <div style={{
+        width:circleSize,
+        height:circleSize,
+        borderRadius:"50%",
+        border:"10px solid #4CAF50",
+        display:"flex",
+        alignItems:"center",
+        justifyContent:"center",
+        fontSize:"40px",
+        margin:"30px auto"
+      }}>
+        {formatTime(timeLeft)}
+      </div>
+      <div style={{display:"flex",gap:"20px",justifyContent:"center", flexDirection:"column", alignItems:"center"}}>
+        {/* --- 暫停/繼續按鈕 --- */}
+        <button 
+          onClick={() => setIsPaused(!isPaused)} 
+          style={{
+            padding: "10px 40px", 
+            fontSize: "18px", 
+            backgroundColor: isPaused ? "#4CAF50" : "#f44336", // 暫停時綠色(繼續)，執行時紅色(暫停)
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer"
+          }}
+        >
+          {isPaused ? "▶️ 繼續" : "⏸️ 暫停"}
+        </button>
 
-  <div style={{textAlign:"center",padding:"40px"}}>
-    <h1>{exercise ? exercise.name : `Exercise ID: ${exerciseId}`}</h1>
-    <h2>Set {currentSet}/{totalSets}</h2>
-    <div style={{marginBottom:"10px"}}>
-      <strong>{weight} kg</strong>  
-      <br/>
-      {reps} reps
+        <button onClick={skip} style={{padding:"10px 20px"}}>
+          Skip
+        </button>
+
+        <button onClick={endWorkout} style={{padding:"10px 20px"}}>
+          End Workout
+        </button>
+      </div>
     </div>
-  <h3>{phase.toUpperCase()}</h3>
-  <div style={{
-    width:circleSize,
-    height:circleSize,
-    borderRadius:"50%",
-    border:"10px solid #4CAF50",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center",
-    fontSize:"40px",
-    margin:"30px auto"
-  }}>
-    {formatTime(timeLeft)}
-  </div>
-  <div style={{display:"flex",gap:"20px",justifyContent:"center", flexDirection:"column", alignItems:"center"}}>
-    <button onClick={skip} style={{padding:"10px 20px"}}>
-      Skip
-    </button>
-
-    <button onClick={endWorkout} style={{padding:"10px 20px"}}>
-      End Workout
-    </button>
-  </div>
-  </div>
   )
 }
