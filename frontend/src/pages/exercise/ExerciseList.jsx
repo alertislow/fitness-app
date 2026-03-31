@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { API_BASE_URL } from '../../api/config.js';
+import { getExerciseList } from "../../api/exerciseAPI.js";
 
 export default function ExerciseList() {
   const { id } = useParams();  // body part id
@@ -9,15 +9,20 @@ export default function ExerciseList() {
 
   // 根據 body part id 獲取 exercise list
   useEffect(() => {
-  fetch(`${API_BASE_URL}/exercise/list`)
-    .then(res => res.json())
-    .then(data => {
-      // 過濾該 body part
-      const filtered = data.filter(e => e.body_part_id === Number(id));
-      setExercises(filtered);
-    })
-    .catch(err => console.error(err));
-  }, [id]);
+    const loadExercises = async () => {
+        try {
+          // 直接使用 API 函式
+          const data = await getExerciseList();
+          
+          // 過濾對應部位
+          const filtered = data.filter(e => e.body_part_id === Number(id));
+          setExercises(filtered);
+        } catch (err) {
+          console.error("載入動作列表失敗:", err);
+        }
+      };
+      loadExercises();
+    }, [id]); // 當部位 ID 改變時重新執行
     const openExercise = (exercise) => {
       navigate(`/exercise/workout-setup/${exercise.id}`, { state: { bodyPartId: id } });
     };
@@ -30,7 +35,8 @@ export default function ExerciseList() {
       </button>
       <h1>Exercises</h1>
 
-      {exercises.map((exercise) => (
+      {exercises.length > 0 ? (
+        exercises.map((exercise) => (
         <div
           key={exercise.id}
           onClick={() => openExercise(exercise)}
@@ -44,7 +50,10 @@ export default function ExerciseList() {
         >
           {exercise.name}
         </div>
-      ))}
+      ))
+    ):(
+      <p>Loading exercises...</p>
+    )}
     </div>
   );
 }
