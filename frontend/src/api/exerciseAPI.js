@@ -7,7 +7,7 @@ export const getExerciseList = async () => {
   // 使用 axios 實例或完整路徑
   const response = await axios.get(`${API_BASE_URL}/exercise/list`, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   });
 
