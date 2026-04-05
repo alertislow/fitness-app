@@ -31,15 +31,31 @@ def save_set(
     db: Session = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id) # 從 JWT token 獲取當前用戶的 ID
     ): 
-    # 找「今天」同一個 exercise 的最大 set_number，且爲臺灣時間
-    now = datetime.utcnow() + timedelta(hours=8) # 轉換到臺灣時間
-    start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    # --- 獲取基準日期(可從前端傳入資料或是自動代入今日) ---
+    # 檢查前端傳來的資料（取第一筆即可）是否有帶日期字串 (例如 "2026-03-30")
+    if hasattr(data[0], 'date') and data[0].date:
+        date_str = data[0].date.replace('-', '/')
+        try:
+            base_date = datetime.strptime(date_str, "%Y/%m/%d")
+        except ValueError:
+            # 如果還是格式不對，就用今天
+            base_date = datetime.utcnow() + timedelta(hours=8)
+    else:
+        # 若沒傳，維持原有的「台灣今天」邏輯
+        base_date = datetime.utcnow() + timedelta(hours=8)
+    
+    # 定義該日期的 00:00:00 作為查詢起點
+    start_of_day = base_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    # 定義該日期的 23:59:59 作為查詢終點
+    end_of_day = start_of_day + timedelta(days=1)
+    # --- 查詢該特定日期的最大組數 ---
     last_set = (
         db.query(WorkoutHistory)
         .filter(
             WorkoutHistory.user_id == current_user_id,
             WorkoutHistory.exercise_id == data[0].exercise_id,
-            WorkoutHistory.date >= start_of_day  # 今天開始
+            WorkoutHistory.date >= start_of_day,  # 今天開始
+            WorkoutHistory.date < end_of_day  # 確保是在該指定日期內
         )
         .order_by(WorkoutHistory.set_number.desc())
         .first()
@@ -56,7 +72,9 @@ def save_set(
             set_number=start_number + i + 1,  # 不使用前端傳的 set_number，改為從現有的組數再加1
             reps=set_data.reps,
             weight=set_data.weight,
-            date=datetime.utcnow()
+            # --- 存入正確的日期 ---
+            # 如果是補錄，存入 base_date；如果是當下，存入當下精確時間
+            date = base_date if hasattr(data[0], 'date') and data[0].date else datetime.utcnow() + timedelta(hours=8)
         )
         db.add(workout)
         new_sets.append(workout)
