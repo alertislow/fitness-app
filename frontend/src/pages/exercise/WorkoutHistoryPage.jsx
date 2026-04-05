@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getWorkoutHistory, updateWorkoutSet, deleteWorkoutSet } from "../../api/workoutApi.js" // 從後端抓 workout history、更新 set、刪除 set
+import { getWorkoutHistory, updateWorkoutSet, deleteWorkoutSet, saveWorkoutSet } from "../../api/workoutApi.js" // 從後端抓 workout history、更新 set、刪除 set
 import { getExerciseList } from "../../api/exerciseAPI.js"; // 用來顯示 exercise name
 import { WorkoutSummaryPieChart } from "../../components/WorkoutPieChart.jsx"; // 圖表元件
 import Calendar from 'react-calendar';
@@ -17,7 +17,9 @@ export default function WorkoutHistoryPage(){
   const [isProcessing, setIsProcessing] = useState(false); // 編輯與刪除的loading狀態
   const [expandedExId, setExpandedExId] = useState(null); // 用來控制同一天的 exercise 展開收合
   const [activeDates, setActiveDates] = useState([]); // 儲存 API 回傳的日期陣列
-  
+  const [isSelectorOpen, setIsSelectorOpen] = useState(false);  
+  const [allExercises, setAllExercises] = useState([]); // 存放所有可選動作
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -54,7 +56,7 @@ export default function WorkoutHistoryPage(){
 
   // 將資料依日期分組
   const groupedByDate = history.reduce((acc, item) => {
-    const date = new Date(item.date).toLocaleDateString();
+    const date = item.date.includes('/') ? item.date : new Date(item.date).toLocaleDateString();
     if (!acc[date]) acc[date] = {};
 
     // 依照 exercise_id 分組，這樣同一天的不同 exercise 就不會混在一起
@@ -64,32 +66,132 @@ export default function WorkoutHistoryPage(){
     return acc;
   }, {});
   
-
-   // 優化：編輯完成後直接更新單組資料
   const handleSave = async () => {
-    // 🔒 開啟鎖定，防止重複點擊
     setIsProcessing(true);
     try {
-      await updateWorkoutSet(editSet.id, {
-        exercise_id: editSet.exercise_id,
-        set_number: editSet.set_number,
-        weight: editSet.weight,
-        reps: editSet.reps,
-      });
+      if (editSet.isNew) {
+        // 直接把目前的 selectedDate 傳過去，不用再做 replaceAll 之類的轉換
+        // 因為後端我們已經加了 .replace('-', '/') 的相容處理
+        const payload = [{
+          exercise_id: editSet.exercise_id,
+          reps: editSet.reps,
+          weight: editSet.weight,   
+          date: selectedDate
+        }];
 
-      // 更新本地 state
-      setHistory((prev) =>
-        prev.map((item) => (item.id === editSet.id ? { ...item, weight: editSet.weight, reps: editSet.reps } : item))
-      );
-      setEditSet(null);
+        await saveWorkoutSet(payload);
+        
+        // // 2. 取得後端回傳資料
+        // const savedSets = response.data.data || response.data;
+
+        // if (Array.isArray(savedSets) && savedSets.length > 0) {
+        //   // 3. 關鍵修正：強制讓新資料的日期欄位「字串化」為當前的 selectedDate
+        //   // 這樣可以 100% 繞過 new Date() 可能產生的時區或格式偏差
+        //   const formattedSets = savedSets.map(set => ({
+        //     ...set,
+        //     date: selectedDate // 直接蓋掉！確保它一定能被 groupedByDate[selectedDate] 抓到
+        //   }));
+
+        //   setHistory(prev => {
+        //     const newHistory = [...prev, ...formattedSets];
+        //     return [...newHistory].sort((a, b) => a.set_number - b.set_number);
+        //   });
+          
+        //   // 4. 自動展開該動作，讓使用者看到新增結果
+        //   setExpandedExId(String(editSet.exercise_id));
+        // }
+      } else {
+        // 編輯邏輯
+        await updateWorkoutSet(editSet.id, {
+          exercise_id: editSet.exercise_id,
+          set_number: editSet.set_number,
+          weight: editSet.weight,
+          reps: editSet.reps,
+        });
+      }
+      // 🔥 關鍵點：不管新增還是編輯成功，直接重新呼叫一次初始化時的撈取邏輯
+      const refreshRes = await getWorkoutHistory();
+      setHistory(refreshRes.data); // 這會觸發重新渲染，且格式會跟原本撈取時一致
+
+      setEditSet(null); 
     } catch (err) {
-      console.error(err);
-      alert("Failed to update");
+      console.error("儲存失敗:", err);
+      alert("儲存失敗，請檢查網路");
     } finally {
-      // 🔓 無論成功失敗，最後都要解鎖
       setIsProcessing(false); 
     }
   };
+
+  //  // 編輯或新增完成後直接更新單組資料
+  // const handleSave = async () => {
+  //   // 🔒 開啟鎖定，防止重複點擊
+  //   setIsProcessing(true);
+  //   try {
+  //     if (editSet.isNew){
+  //       // 1. 確保傳給後端的日期
+  //       const payload = [{
+  //         exercise_id: editSet.exercise_id,
+  //         reps: editSet.reps,
+  //         weight: editSet.weight,   
+  //         date: selectedDate // 這裡確認 selectedDate 是字串 "2026-03-30" 格式
+  //       }];
+
+        
+  //       // 2. 呼叫 API
+  //       const response = await saveWorkoutSet(payload);
+  //       console.log("1. 原始 Response:", response);
+  //       // 3. 取得後端回傳的陣列 (根據你的 Log，路徑是 response.data.data)
+  //       const savedSets = response.data.data;
+
+  //       if (Array.isArray(savedSets) && savedSets.length > 0) {
+  //         // 4. 格式化日期以符合前端 Filter 
+  //         const formattedSets = savedSets.map(set => {
+  //           // 💡 關鍵修正：將後端的 "2026-04-05T..." 轉換為 "2026/4/5" (或符合你頁面的格式)
+  //           const dateObj = new Date(set.date)
+  //           // 這裡要跟你的 selectedDate 變數格式完全一致
+  //           // 如果你的 selectedDate 是 "2026/4/5"，就用下面這行：
+  //           const pageCompatibleDate = `${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+  //           return {
+  //             ...set,
+  //             date: pageCompatibleDate // 強制同步格式
+  //           }
+  //         });
+  //         // console.log("2. 格式化後的新資料 (檢查 date 欄位):", formattedSets[0]);
+  //         console.log("比對測試:", formattedSets[0].date === selectedDate); // 這裡如果是 true 就成功了
+  //         // 5. 更新 State (確保產生新陣列引用)
+  //         setHistory(prev => {
+  //           const newHistory = [...prev, ...formattedSets];
+  //             // 依據組數排序
+  //             return [...newHistory].sort((a, b) => a.set_number - b.set_number);
+  //           });
+  //           console.log("3. State 已更新");
+  //         }
+  //     } else {
+  //         // --- 編輯現有紀錄的邏輯 ---
+  //         await updateWorkoutSet(editSet.id, {
+  //         exercise_id: editSet.exercise_id,
+  //         set_number: editSet.set_number,
+  //         weight: editSet.weight,
+  //         reps: editSet.reps,
+  //       });
+  //       // 更新本地 state
+  //       setHistory(prev =>
+  //         prev.map(item => 
+  //           item.id === editSet.id 
+  //             ? { ...item, weight: editSet.weight, reps: editSet.reps } 
+  //             : item
+  //         )
+  //       );
+  //     }
+  //     setEditSet(null); // 關閉編輯視窗
+  //   } catch (err) {
+  //     console.error("儲存失敗:", err);
+  //     alert("Failed to update");
+  //   } finally {
+  //     // 🔓 無論成功失敗，最後都要解鎖
+  //     setIsProcessing(false); 
+  //   }
+  // };
   // 刪除訓練紀錄 + 重排同組後面的 set_number
   const handleDelete = async (setToDelete) => {
     if (!window.confirm("確定要刪除這組嗎？")) return;
@@ -154,6 +256,17 @@ export default function WorkoutHistoryPage(){
     }
   };
 
+  // 點擊空白處的 + 號，可直接新增記錄
+  const openExerciseSelector = async () => {
+    // 1. 撈取所有動作清單 (如果你還沒撈過)
+    if (allExercises.length === 0) {
+      const res = await fetch(`${API_BASE_URL}/exercise/list`);
+      const data = await res.json();
+      setAllExercises(data);
+    }
+    setIsSelectorOpen(true);
+  };
+
   // 獲取日期
   useEffect(() => {
       const fetchActiveDates = async () => {
@@ -203,27 +316,6 @@ export default function WorkoutHistoryPage(){
 
       <h1>Workout History</h1>
 
-      {/* 日期列表 */}
-      {/* {!selectedDate && (
-        <>
-          {Object.keys(groupedByDate).length === 0 && <p>No workouts yet</p>}
-          {Object.keys(groupedByDate).map((date) => (
-            <div
-              key={date}
-              style={{
-                border: "1px solid #ddd",
-                padding: "10px",
-                marginBottom: "10px",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
-              onClick={() => setSelectedDate(date)}
-            >
-              <strong>{date}</strong>
-            </div>
-          ))}
-        </>
-      )} */}
       {/* 2. 顯示日曆 (僅在未選擇特定日期時顯示) */}
       {!selectedDate && !editSet && (
         <div className="calendar-wrapper">
@@ -309,11 +401,43 @@ export default function WorkoutHistoryPage(){
                             <span>{set.weight} kg × {set.reps}</span>
                           </div>
                         ))}
+                        {/* 小 + 號按鈕，用來新增該動作的下一組 ExerciseSelectorModal */}
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation(); // 防止觸發摺疊
+                            // 1. 從目前的 history 找出當天、該動作的所有組數
+                            const currentSets = groupedByDate[selectedDate]?.[exerciseId] || [];
+                            // 2. 計算下一組應該是第幾組
+                            const nextSetNum = currentSets.length > 0 
+                              ? Math.max(...currentSets.map(s => s.set_number)) + 1 
+                              : 1;
+                              // 3. 找出最後一組的重量/次數（自動帶入）
+                            const lastSet = currentSets.length > 0 
+                              ? [...currentSets].sort((a, b) => b.set_number - a.set_number)[0]
+                              : null;
+                            setEditSet({
+                              exercise_id: Number(exerciseId),
+                              set_number: nextSetNum,
+                              weight: lastSet ? lastSet.weight : 0, // 若是編輯自動帶入上一組重量，否則預設0讓用戶輸入
+                              reps: lastSet ? lastSet.reps : 0,     
+                              isNew: true // 標記為新增
+                            });
+                            setIsSelectorOpen(false);
+                          }}
+                          style={{ width: "100%", padding: "10px", marginTop: "10px", backgroundColor: "rgba(255,255,255,0.3)", border: "1px dashed #333", borderRadius: "5px" }}
+                        >
+                          + Add Set {sets.length + 1}
+                        </button>
                     </div>
                     )}
                   </div>
                 );
               })}
+
+              {/* 新增全新動作按鈕 */}
+              <button onClick={openExerciseSelector} style={{ width: "100%", padding: "12px", borderRadius: "8px", marginBottom: "20px" }}>
+                + Add Another Exercise
+              </button>
               {/* 2. 圓餅圖分析 */}
                 <hr style={{ border: "0.5px solid #444", margin: "30px 0" }} />
                 <WorkoutSummaryPieChart 
@@ -322,15 +446,27 @@ export default function WorkoutHistoryPage(){
                 />
               </>
             ) : (
-                /* 3. 無資料時的顯示 */
-                <div style={{ textAlign: "center", marginTop: "20px" }}>
-                  <p>No workout yet</p>
+                /* 3. 無資料時的顯示 (大 + 號)*/
+                <div style={{ textAlign: "center", marginTop: "30px" }}>
+                  <p>No workout yet on {selectedDate}</p>
+                  <button 
+                    onClick={openExerciseSelector}
+                    style={{
+                      width: "70px", height: "70px", borderRadius: "50%",
+                      backgroundColor: "#007bff", color: "white", fontSize: "30px",
+                      border: "none", cursor: "pointer", marginTop: "20px"
+                    }}
+                  >
+                    +
+                  </button>
                 </div>
               )}
           </>
         </div>
       )}
       
+      
+
       {/* 編輯畫面（獨立） */}
       {editSet && (
         <div style={{ border: "1px solid #ddd", padding: "10px", borderRadius: "8px" }}>
@@ -400,6 +536,26 @@ export default function WorkoutHistoryPage(){
             >
               {isProcessing ? "Deleting..." : "Delete"}
             </button>
+          </div>
+        </div>
+      )}
+      {isSelectorOpen && (
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="modal-content" style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', width: '80%', maxHeight: '70vh', overflowY: 'auto' }}>
+            <h3>Select Exercise</h3>
+            {allExercises.map(ex => (
+              <button 
+                key={ex.id} 
+                onClick={() => {
+                  setEditSet({ exercise_id: ex.id, set_number: 1, weight: 0, reps: 0, isNew: true });
+                  setIsSelectorOpen(false);
+                }}
+                style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '5px', textAlign: 'left' }}
+              >
+                {ex.name}
+              </button>
+            ))}
+            <button onClick={() => setIsSelectorOpen(false)} style={{ marginTop: '10px', width: '100%' }}>Cancel</button>
           </div>
         </div>
       )}

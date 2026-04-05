@@ -12,9 +12,9 @@ class ExerciseCreate(ExerciseBase):
 # 運動記錄
 class WorkoutCreate(BaseModel):
     exercise_id: int
-    # set_number: int
     reps: int
     weight: float
+    date: Optional[str] = None  # <--- 新增可選日期欄位，建議格式 "YYYY-MM-DD"
 
 # 專門給運動記錄「更新」和「重排」使用
 class WorkoutUpdate(WorkoutCreate):
