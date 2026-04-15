@@ -198,3 +198,28 @@
 .react-calendar__tile:enabled:hover {
   background-color: #4192e37b !important;
 }
+
+/* 紅色 Aero 刪除按鈕 */
+.aero-btn-delete {
+  background: linear-gradient(to bottom, #ff4d4d, #cc0000) !important;
+  color: white !important;
+  border: 1px solid #900 !important;
+  border-radius: 20px !important; /* 保持藥丸形狀 */
+  padding: 5px 20px !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.4), 
+    0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+}
+
+.aero-btn-delete:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #ff6666, #dd0000) !important;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.5) !important;
+}
+
+.aero-btn-delete:disabled {
+  background: #ccc !important;
+  cursor: not-allowed !important;
+  border-color: #999 !important;
+}

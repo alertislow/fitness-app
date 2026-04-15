@@ -246,11 +246,11 @@ export default function WorkoutHistoryPage(){
           <>
             <button 
               onClick={() => {setSelectedDate(null); setExpandedExId(null);}} 
-              style={{ marginBottom: "15px" }}
+              style={{ margin: "15px" }}
             >
               ← Back to Dates
             </button>
-            <h2 style={{ fontSize: "1.2rem", color: "#005a9e", marginBottom: "15px" }}>
+            <h2 style={{ fontSize: "1.2rem", color: "#005a9e" , margin: "15px" }}>
               Date: {selectedDate}
             </h2>
 
@@ -268,8 +268,8 @@ export default function WorkoutHistoryPage(){
                     key={exerciseId}
                     className="aero-card"
                     style={{
-                      marginBottom: "15px",
-                      // borderRadius: "8px",
+                      margin: "15px",
+                      
                       overflow: "hidden", // 確保圓角
                     }}
                   >
@@ -282,7 +282,7 @@ export default function WorkoutHistoryPage(){
                       justifyContent: "space-between",
                       alignItems: "center",
                       cursor: "pointer",
-                      backgroundColor: isExpanded ? "rgba(255,255,255,0.3)" : "transparent",
+                      backgroundColor: isExpanded ? "rgba(255, 255, 255, 0.3)" : "transparent",
                       transition: "background 0.3s"
                     }}
                   >
@@ -296,7 +296,7 @@ export default function WorkoutHistoryPage(){
                   </div>
                   {/* 內容區：僅在 isExpanded 為 true 時顯示 */}
                   {isExpanded && (
-                    <div style={{ padding: "10px", borderTop: "1px solid rgba(255,255,255,0.3)" }}>
+                    <div style={{ padding: "10px" }}>
                       {sets
                         .sort((a, b) => a.set_number - b.set_number)
                         .map((set) => (
@@ -306,7 +306,8 @@ export default function WorkoutHistoryPage(){
                             onClick={() => setEditSet(set)}
                             style={{
                               padding: "12px",
-                              borderBottom: "1px solid rgba(0,0,0,0.05)",
+                              marginBottom: "8px",
+                              borderBottom: "1px solid rgba(49, 170, 231, 0.18)",
                               display: "flex",
                               justifyContent: "space-between",
                               cursor: "pointer"
@@ -370,11 +371,6 @@ export default function WorkoutHistoryPage(){
                   <button 
                     onClick={openExerciseSelector}
                     className="big-plus-btn"
-                    // style={{
-                    //   width: "70px", height: "70px", borderRadius: "50%",
-                    //   backgroundColor: "#007bff", color: "white", fontSize: "30px",
-                    //   border: "none", cursor: "pointer", marginTop: "20px"
-                    // }}
                   >
                     +
                   </button>
@@ -436,17 +432,9 @@ export default function WorkoutHistoryPage(){
 
             <button
               onClick={() => handleDelete(editSet)}
-              disabled={isProcessing} // 處理中禁用
-              // style={{
-              //   marginLeft: "auto",
-              //   background: isProcessing ? "#ccc" : "red", // 變灰色
-              //   color: "white",
-              //   border: "none",
-              //   padding: "5px 10px",
-              //   borderRadius: "5px",
-              //   cursor: isProcessing ? "not-allowed" : "pointer", // 滑鼠變成禁用圖示
-              // }}
-              style={{ marginLeft: "auto", background: "linear-gradient(to bottom, #ff4d4d, #cc0000)", border: "none",borderRadius: "5px", cursor: isProcessing ? "not-allowed" : "pointer", }}
+              disabled={isProcessing}
+              className="aero-btn-delete"
+              style={{ marginLeft: "auto"}}
             >
               {isProcessing ? "Deleting..." : "Delete"}
             </button>
