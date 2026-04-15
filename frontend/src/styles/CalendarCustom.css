@@ -4,47 +4,73 @@
   width: 100% !important;
   max-width: 100% !important; 
   margin: 0 auto;
-  background-color: #ffffff !important;
-  color: #333333 !important;
-  border: 1px solid #eeeeee !important; /* 外框線 */
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+  /* color: #333333 !important; */
+  border: none !important; 
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  font-family: inherit;
+  box-shadow: 0 10px 30px rgba(0, 50, 100, 0.15) !important;
 }
 
 /* 1. 頂部導航列 */
 .react-calendar__navigation {
-  display: flex;
-  height: 50px; /* 增加高度防止字體擠壓 */
-  background: rgba(255, 255, 255, 0.3) !important;
+  margin-top: 0 !important;
+  display: flex !important;
+  height: 45px !important; /* 固定高度 */
+  background: linear-gradient(to bottom, #00a8ff, #007cc0) !important;
   /*border-bottom: 1px solid #eeeeee; /* 導航下方的分割線 */
-  padding: 15px 0;
+  padding: 2px 5px !important;
   border-radius: 12px 12px 0 0;
   margin-bottom: 0 !important;
 }
-
+/* 2. 導覽按鈕 (<<, <, >, >>)：重置預設樣式 */
 .react-calendar__navigation button {
-  min-width: 44px;
-  background: none !important; /* 移除預設按鈕漸層，防止跑版 */
-  border: none !important;
-  color: #005a9e !important;
-  font-size: 1.1rem;
-  font-weight: bold;
-  box-shadow: none !important; /* 移除外發光 */
+  min-width: 35px !important;
+  height: 35px !important;
+  background: rgba(255, 255, 255, 0.2) !important; /* 半透明玻璃感 */
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 6px !important; /* 改為較小的圓角，更像 Win7 視窗按鈕 */
+  color: white !important;
+  font-size: 1.2rem !important;
+  margin: 2px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important; /* 內部亮邊 */
+  transition: all 0.2s;
 }
-
-.react-calendar__navigation button:enabled:hover,
-.react-calendar__navigation button:enabled:focus {
-  background-color: rgba(255, 255, 255, 0.5) !important;
+/* 移除全域按鈕可能帶來的偏移與陰影 */
+.react-calendar__navigation button:hover,
+.react-calendar__navigation button:focus {
+  background: rgba(255, 255, 255, 0.4) !important;
+  transform: none !important; /* 防止導覽按鈕跳動 */
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5) !important;
+}
+.react-calendar__navigation button:disabled {
+  background: transparent !important;
+  opacity: 0.3;
 }
 
 /* 讓當前年月標題更明顯 */
 .react-calendar__navigation__label {
-  flex-grow: 1;
-  font-size: 1.2rem !important;
-  pointer-events: none; /* 防止誤點標題 */
+  flex-grow: 1 !important;
+  background: transparent !important; /* 標題不需要背景 */
+  border: none !important;
+  box-shadow: none !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+  cursor: default !important;
+  pointer-events: none; /* 防止誤點標題切換檢視模式 */
 }
+/* 修正截圖中出現的白色小橢圓（如果有特定的 span 層級） */
+.react-calendar__navigation__label__textContent {
+  color: white !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
 /* 自定義 Aero 卡片類名 */
 .aero-card {
   background: rgba(255, 255, 255, 0.45) !important;
@@ -170,5 +196,5 @@
 
 /* 9. 懸停效果 */
 .react-calendar__tile:enabled:hover {
-  background-color: #f8f9fa !important;
+  background-color: #4192e37b !important;
 }
