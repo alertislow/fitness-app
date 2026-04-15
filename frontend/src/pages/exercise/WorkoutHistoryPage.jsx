@@ -80,26 +80,6 @@ export default function WorkoutHistoryPage(){
         }];
 
         await saveWorkoutSet(payload);
-        
-        // // 2. 取得後端回傳資料
-        // const savedSets = response.data.data || response.data;
-
-        // if (Array.isArray(savedSets) && savedSets.length > 0) {
-        //   // 3. 關鍵修正：強制讓新資料的日期欄位「字串化」為當前的 selectedDate
-        //   // 這樣可以 100% 繞過 new Date() 可能產生的時區或格式偏差
-        //   const formattedSets = savedSets.map(set => ({
-        //     ...set,
-        //     date: selectedDate // 直接蓋掉！確保它一定能被 groupedByDate[selectedDate] 抓到
-        //   }));
-
-        //   setHistory(prev => {
-        //     const newHistory = [...prev, ...formattedSets];
-        //     return [...newHistory].sort((a, b) => a.set_number - b.set_number);
-        //   });
-          
-        //   // 4. 自動展開該動作，讓使用者看到新增結果
-        //   setExpandedExId(String(editSet.exercise_id));
-        // }
       } else {
         // 編輯邏輯
         await updateWorkoutSet(editSet.id, {
@@ -122,76 +102,6 @@ export default function WorkoutHistoryPage(){
     }
   };
 
-  //  // 編輯或新增完成後直接更新單組資料
-  // const handleSave = async () => {
-  //   // 🔒 開啟鎖定，防止重複點擊
-  //   setIsProcessing(true);
-  //   try {
-  //     if (editSet.isNew){
-  //       // 1. 確保傳給後端的日期
-  //       const payload = [{
-  //         exercise_id: editSet.exercise_id,
-  //         reps: editSet.reps,
-  //         weight: editSet.weight,   
-  //         date: selectedDate // 這裡確認 selectedDate 是字串 "2026-03-30" 格式
-  //       }];
-
-        
-  //       // 2. 呼叫 API
-  //       const response = await saveWorkoutSet(payload);
-  //       console.log("1. 原始 Response:", response);
-  //       // 3. 取得後端回傳的陣列 (根據你的 Log，路徑是 response.data.data)
-  //       const savedSets = response.data.data;
-
-  //       if (Array.isArray(savedSets) && savedSets.length > 0) {
-  //         // 4. 格式化日期以符合前端 Filter 
-  //         const formattedSets = savedSets.map(set => {
-  //           // 💡 關鍵修正：將後端的 "2026-04-05T..." 轉換為 "2026/4/5" (或符合你頁面的格式)
-  //           const dateObj = new Date(set.date)
-  //           // 這裡要跟你的 selectedDate 變數格式完全一致
-  //           // 如果你的 selectedDate 是 "2026/4/5"，就用下面這行：
-  //           const pageCompatibleDate = `${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
-  //           return {
-  //             ...set,
-  //             date: pageCompatibleDate // 強制同步格式
-  //           }
-  //         });
-  //         // console.log("2. 格式化後的新資料 (檢查 date 欄位):", formattedSets[0]);
-  //         console.log("比對測試:", formattedSets[0].date === selectedDate); // 這裡如果是 true 就成功了
-  //         // 5. 更新 State (確保產生新陣列引用)
-  //         setHistory(prev => {
-  //           const newHistory = [...prev, ...formattedSets];
-  //             // 依據組數排序
-  //             return [...newHistory].sort((a, b) => a.set_number - b.set_number);
-  //           });
-  //           console.log("3. State 已更新");
-  //         }
-  //     } else {
-  //         // --- 編輯現有紀錄的邏輯 ---
-  //         await updateWorkoutSet(editSet.id, {
-  //         exercise_id: editSet.exercise_id,
-  //         set_number: editSet.set_number,
-  //         weight: editSet.weight,
-  //         reps: editSet.reps,
-  //       });
-  //       // 更新本地 state
-  //       setHistory(prev =>
-  //         prev.map(item => 
-  //           item.id === editSet.id 
-  //             ? { ...item, weight: editSet.weight, reps: editSet.reps } 
-  //             : item
-  //         )
-  //       );
-  //     }
-  //     setEditSet(null); // 關閉編輯視窗
-  //   } catch (err) {
-  //     console.error("儲存失敗:", err);
-  //     alert("Failed to update");
-  //   } finally {
-  //     // 🔓 無論成功失敗，最後都要解鎖
-  //     setIsProcessing(false); 
-  //   }
-  // };
   // 刪除訓練紀錄 + 重排同組後面的 set_number
   const handleDelete = async (setToDelete) => {
     if (!window.confirm("確定要刪除這組嗎？")) return;
