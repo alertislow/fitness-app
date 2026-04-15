@@ -1,21 +1,148 @@
 :root {
-  /* 定義一些全域變數，方便統一修改 */
-  --primary-color: #007bff;
+  /* Frutiger Aero 核心色彩 */
+  --primary-color: #00a8ff;
+  --secondary-color: #7bed9f;
+  --bg-gradient: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 50%, #80deea 100%);
+  --glossy-white: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --text-main: #004d40;
+  --shadow-color: rgba(0, 150, 255, 0.2);
 }
 
 * {
   box-sizing: border-box;
-  /* 👈 核心：移除手機瀏覽器點擊時的藍色半透明方塊 */
-  -webkit-tap-highlight-color: transparent; 
-  /* 👈 防止手機版網頁在快速點擊時縮放，讓反應更快 */
-  touch-action: manipulation; 
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: #fcfcfc; /* 配合你的白色基底 */
-  color: #333;
-  /* 👈 讓捲動更順暢（像原生 App 一樣有回彈感） */
-  -webkit-overflow-scrolling: touch; 
+  font-family: 'Segoe UI', 'Frutiger', 'Calibri', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-main);
+  -webkit-overflow-scrolling: touch;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* 建立水泡背景裝飾 (Frutiger Aero的經典元素) */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1));
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.5), 0 4px 15px rgba(0, 168, 255, 0.2);
+  z-index: -1;
+  animation: float 15s infinite ease-in-out;
+}
+
+body::before {
+  width: 150px;
+  height: 150px;
+  top: 10%;
+  left: 5%;
+  animation-duration: 20s;
+}
+
+body::after {
+  width: 80px;
+  height: 80px;
+  bottom: 20%;
+  right: 10%;
+  animation-direction: reverse;
+  animation-duration: 12s;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-30px) scale(1.05);
+  }
+}
+
+/* 全域卡片 (Glassmorphism + Glossy 擬物化) */
+div[style*="border"],
+.dashboard-container>div {
+  background: var(--glossy-white) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 15px !important;
+  box-shadow: 0 8px 32px var(--shadow-color), inset 0 2px 0 rgba(255, 255, 255, 0.8) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+div[style*="border"]:hover,
+.dashboard-container>div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 168, 255, 0.3), inset 0 2px 0 rgba(255, 255, 255, 1) !important;
+}
+
+/* 按鈕設計 (水漾光澤與立體感) */
+button {
+  background: linear-gradient(to bottom, #7bed9f, #2ed573) !important;
+  border: 1px solid #2ed573 !important;
+  color: #fff !important;
+  border-radius: 20px !important;
+  padding: 10px 25px !important;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(46, 213, 115, 0.4), inset 0 2px 5px rgba(255, 255, 255, 0.6) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  background: linear-gradient(to bottom, #9aeaa8, #2ed573) !important;
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(46, 213, 115, 0.6), inset 0 2px 5px rgba(255, 255, 255, 0.8) !important;
+}
+
+button:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 5px rgba(46, 213, 115, 0.4), inset 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 標題設計 */
+h1,
+h2,
+h3 {
+  color: #0082c8;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.8);
+  font-weight: 700;
+}
+
+/* 輸入框設計 */
+input {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(0, 168, 255, 0.3) !important;
+  border-radius: 12px !important;
+  padding: 12px 15px !important;
+  font-size: 1rem;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+input:focus {
+  background: #fff !important;
+  border-color: #00a8ff !important;
+  box-shadow: 0 0 10px rgba(0, 168, 255, 0.4), inset 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 導覽列特製 (Dashboard Header) */
+.dashboard-header-fake-class {
+  background: linear-gradient(to right, rgba(224, 247, 250, 0.9), rgba(178, 235, 242, 0.9)) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border) !important;
+  box-shadow: 0 2px 10px rgba(0, 168, 255, 0.1) !important;
 }
