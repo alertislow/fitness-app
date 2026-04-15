@@ -199,6 +199,13 @@
   background-color: #4192e37b !important;
 }
 
+/* 藍色 Aero 新增按鈕 */
+.add-set-btn{
+  color: #005a9e;
+  margin-top: 10px;
+  background-color: rgba(255,255,255,0.2);
+  border: 1px dashed #00a8ff;
+}
 /* 紅色 Aero 刪除按鈕 */
 .aero-btn-delete {
   background: linear-gradient(to bottom, #ff4d4d, #cc0000) !important;
@@ -222,4 +229,33 @@
   background: #ccc !important;
   cursor: not-allowed !important;
   border-color: #999 !important;
+}
+
+/* 紅色 Aero 刪除全部組數按鈕 */
+.aero-btn-delete-all {
+  background: linear-gradient(to bottom, #ff5f5f, #cc0000) !important;
+  color: white !important;
+  border: 1px solid #900 !important;
+  border-radius: 20px !important;
+  padding: 8px 20px !important;
+  width: 100%; /* 讓它跟 Add Set 按鈕一樣寬 */
+  margin-top: 10px; /* 與上方按鈕保持間距 */
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.4), 
+    0 2px 5px rgba(0, 0, 0, 0.3) !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.aero-btn-delete-all:hover {
+  background: linear-gradient(to bottom, #ff7b7b, #e60000) !important;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.4) !important;
+}
+
+.aero-btn-delete-all:active {
+  transform: translateY(1px);
+  background: #aa0000 !important;
 }
