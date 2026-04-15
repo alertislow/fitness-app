@@ -15,11 +15,64 @@
 
 /* 1. 頂部導航列 */
 .react-calendar__navigation {
-  background-color: #ffffff !important;
-  border-bottom: 1px solid #eeeeee; /* 導航下方的分割線 */
+  display: flex;
+  height: 50px; /* 增加高度防止字體擠壓 */
+  background: rgba(255, 255, 255, 0.3) !important;
+  /*border-bottom: 1px solid #eeeeee; /* 導航下方的分割線 */
   padding: 15px 0;
+  border-radius: 12px 12px 0 0;
   margin-bottom: 0 !important;
 }
+
+.react-calendar__navigation button {
+  min-width: 44px;
+  background: none !important; /* 移除預設按鈕漸層，防止跑版 */
+  border: none !important;
+  color: #005a9e !important;
+  font-size: 1.1rem;
+  font-weight: bold;
+  box-shadow: none !important; /* 移除外發光 */
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 讓當前年月標題更明顯 */
+.react-calendar__navigation__label {
+  flex-grow: 1;
+  font-size: 1.2rem !important;
+  pointer-events: none; /* 防止誤點標題 */
+}
+/* 自定義 Aero 卡片類名 */
+.aero-card {
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(15px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 50, 100, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+/* 大 + 號按鈕樣式 */
+.big-plus-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50% !important;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
+  background: linear-gradient(to bottom, #7bed9f, #2ed573) !important;
+}
+
+/* 返回按鈕微調 */
+.aero-back-btn {
+  padding: 8px 15px !important;
+  font-size: 0.9rem;
+}
+
 
 /* 2. 星期幾標籤 */
 .react-calendar__month-view__weekdays {
@@ -33,6 +86,8 @@
   text-decoration: none !important;
   padding: 12px 0;
 }
+
+
 
 /* 3. 核心修改：加入日期網格分割線 */
 .react-calendar__tile {

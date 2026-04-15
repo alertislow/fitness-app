@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getWorkoutHistory, updateWorkoutSet, deleteWorkoutSet, saveWorkoutSet } from "../../api/workoutApi.js" // 從後端抓 workout history、更新 set、刪除 set
-import { getExerciseList } from "../../api/exerciseAPI.js"; // 用來顯示 exercise name
+// import { getExerciseList } from "../../api/exerciseAPI.js"; // 用來顯示 exercise name
 import { WorkoutSummaryPieChart } from "../../components/WorkoutPieChart.jsx"; // 圖表元件
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // 基本樣式
@@ -135,7 +135,7 @@ export default function WorkoutHistoryPage(){
           })
         )
       );
-
+      
       // 4. 一次性更新前端 State (確保 UI 同步)
       setHistory((prev) => {
         return prev
@@ -154,7 +154,9 @@ export default function WorkoutHistoryPage(){
           })
           // .sort((a, b) => a.set_number - b.set_number); // 排序
       });
-
+      // 刪除並重排成功後，再次撈取最新資料確保與後端完全同步（這步很重要，尤其是當多個使用者可能同時編輯同一天的紀錄時）
+      const refreshRes = await getWorkoutHistory();
+      setHistory(refreshRes.data);
       setEditSet(null);
       // alert("刪除並重排成功！");
     } catch (err) {
@@ -219,16 +221,16 @@ export default function WorkoutHistoryPage(){
   };
 
   return (
-    <div className="history-container">
-      <button onClick={() => navigate("/dashboard")}>
+    <div className="history-container" style={{ padding: "20px"}}>
+      <button className="aero-back-btn" onClick={() => navigate("/dashboard")}>
         ← Back
-      </button>
-
-      <h1>Workout History</h1>
+      </button>   
+      
+      <h1 style={{ textAlign: "center", marginBottom: "30px" }}>Workout History</h1>
 
       {/* 2. 顯示日曆 (僅在未選擇特定日期時顯示) */}
       {!selectedDate && !editSet && (
-        <div className="calendar-wrapper">
+        <div className="calendar-wrapper aero-card">
           <Calendar
             onChange={(date) => setSelectedDate(date.toLocaleDateString())}
             value={new Date()}
@@ -244,10 +246,13 @@ export default function WorkoutHistoryPage(){
           <>
             <button 
               onClick={() => {setSelectedDate(null); setExpandedExId(null);}} 
-              style={{ marginBottom: "20px" }}
+              style={{ marginBottom: "15px" }}
             >
               ← Back to Dates
             </button>
+            <h2 style={{ fontSize: "1.2rem", color: "#005a9e", marginBottom: "15px" }}>
+              Date: {selectedDate}
+            </h2>
 
             {groupedByDate[selectedDate] ? (
               <>
@@ -261,12 +266,11 @@ export default function WorkoutHistoryPage(){
                 return (
                   <div
                     key={exerciseId}
+                    className="aero-card"
                     style={{
-                      border: "1px solid #444",
-                      marginBottom: "10px",
-                      borderRadius: "8px",
+                      marginBottom: "15px",
+                      // borderRadius: "8px",
                       overflow: "hidden", // 確保圓角
-                      backgroundColor: "salmon"
                     }}
                   >
                   {/* 標題欄：點擊切換展開/縮合 */}
@@ -278,41 +282,43 @@ export default function WorkoutHistoryPage(){
                       justifyContent: "space-between",
                       alignItems: "center",
                       cursor: "pointer",
-                      backgroundColor: isExpanded ? "salmon" : "transparent",
+                      backgroundColor: isExpanded ? "rgba(255,255,255,0.3)" : "transparent",
                       transition: "background 0.3s"
                     }}
                   >
                     <div>
-                      <strong style={{ fontSize: "1.1rem" }}>{exerciseName}</strong>
-                      <div style={{ fontSize: "12px", color: "#050505" }}>
+                      <strong style={{ fontSize: "1.1rem", display: "block" }}>{exerciseName}</strong>
+                      <div style={{ fontSize: "13px", opacity: 0.8}}>
                         Total: {totalVolume.toLocaleString()} kg | {sets.length} Sets
                       </div>
                     </div>
-                    <span>{isExpanded ? "▲" : "▼"}</span>
+                    <span style={{ fontSize: "1.2rem" }}>{isExpanded ? "▲" : "▼"}</span>
                   </div>
                   {/* 內容區：僅在 isExpanded 為 true 時顯示 */}
                   {isExpanded && (
-                    <div style={{ padding: "10px", borderTop: "1px solid #444", backgroundColor: "salmon" }}>
+                    <div style={{ padding: "10px", borderTop: "1px solid rgba(255,255,255,0.3)" }}>
                       {sets
                         .sort((a, b) => a.set_number - b.set_number)
                         .map((set) => (
                           <div
                             key={set.id}
+                            className="set-row"
+                            onClick={() => setEditSet(set)}
                             style={{
                               padding: "12px",
-                              borderBottom: "1px solid #222",
+                              borderBottom: "1px solid rgba(0,0,0,0.05)",
                               display: "flex",
                               justifyContent: "space-between",
                               cursor: "pointer"
                             }}
-                            onClick={() => setEditSet(set)}
                           >
                             <span>Set {set.set_number}</span>
-                            <span>{set.weight} kg × {set.reps}</span>
+                            <span style={{ fontWeight: "bold" }}>{set.weight} kg × {set.reps}</span>
                           </div>
                         ))}
                         {/* 小 + 號按鈕，用來新增該動作的下一組 ExerciseSelectorModal */}
                         <button 
+                          className="add-set-btn"
                           onClick={(e) => {
                             e.stopPropagation(); // 防止觸發摺疊
                             // 1. 從目前的 history 找出當天、該動作的所有組數
@@ -334,7 +340,7 @@ export default function WorkoutHistoryPage(){
                             });
                             setIsSelectorOpen(false);
                           }}
-                          style={{ width: "100%", padding: "10px", marginTop: "10px", backgroundColor: "rgba(255,255,255,0.3)", border: "1px dashed #333", borderRadius: "5px" }}
+                          style={{ width: "100%", color: "#005a9e", marginTop: "10px", backgroundColor: "rgba(255,255,255,0.2)", border: "1px dashed #00a8ff", borderRadius: "5px" }}
                         >
                           + Add Set {sets.length + 1}
                         </button>
@@ -349,11 +355,13 @@ export default function WorkoutHistoryPage(){
                 + Add Another Exercise
               </button>
               {/* 2. 圓餅圖分析 */}
-                <hr style={{ border: "0.5px solid #444", margin: "30px 0" }} />
-                <WorkoutSummaryPieChart 
-                  dailyData={groupedByDate[selectedDate]} 
-                  exerciseList={exerciseList} 
-                />
+                {/* <hr style={{ border: "0.5px solid #444", margin: "30px 0" }} /> */}
+                <div className="aero-card" style={{ padding: "20px" }}>
+                  <WorkoutSummaryPieChart 
+                    dailyData={groupedByDate[selectedDate]} 
+                    exerciseList={exerciseList} 
+                  />
+                </div>
               </>
             ) : (
                 /* 3. 無資料時的顯示 (大 + 號)*/
@@ -361,11 +369,12 @@ export default function WorkoutHistoryPage(){
                   <p>No workout yet on {selectedDate}</p>
                   <button 
                     onClick={openExerciseSelector}
-                    style={{
-                      width: "70px", height: "70px", borderRadius: "50%",
-                      backgroundColor: "#007bff", color: "white", fontSize: "30px",
-                      border: "none", cursor: "pointer", marginTop: "20px"
-                    }}
+                    className="big-plus-btn"
+                    // style={{
+                    //   width: "70px", height: "70px", borderRadius: "50%",
+                    //   backgroundColor: "#007bff", color: "white", fontSize: "30px",
+                    //   border: "none", cursor: "pointer", marginTop: "20px"
+                    // }}
                   >
                     +
                   </button>
@@ -379,54 +388,48 @@ export default function WorkoutHistoryPage(){
 
       {/* 編輯畫面（獨立） */}
       {editSet && (
-        <div style={{ border: "1px solid #ddd", padding: "10px", borderRadius: "8px" }}>
-          <h3>Edit Set</h3>
+        <div className="aero-card" style={{ padding: "25px", marginTop: "20px", borderRadius: "8px" }}>
+          <h3 style={{ marginTop: 0 }}>Edit Set</h3>
+          <p><strong>Exercise:</strong> {exerciseMap[editSet.exercise_id] || "Unknown"}</p>
+          <p><strong>Set Number:</strong> {editSet.set_number}</p>
 
-          <div>
-            <strong>Exercise:</strong>{" "}
-            {exerciseMap[editSet.exercise_id] || "Unknown"}
-          </div>
-
-          <div>
-            <strong>Set Number:</strong> {editSet.set_number}
-          </div>
-
-          <div>
-            <label>
-              Weight:
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px" }}>
+              Weight(kg):</label>
               <input
                 type="number"
                 value={editSet.weight}
+                style={{ width: "100%" }}
                 onChange={(e) =>
                   setEditSet({ ...editSet, weight: Number(e.target.value) })
                 }
               />
-            </label>
           </div>
 
-          <div>
-            <label>
-              Reps:
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "5px" }}>
+              Reps:</label>
               <input
                 type="number"
                 value={editSet.reps}
+                style={{ width: "100%" }}
                 onChange={(e) =>
                   setEditSet({ ...editSet, reps: Number(e.target.value) })
                 }
               />
-            </label>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", gap: "10px" }}>
             <button 
               onClick={handleSave}
               disabled={isProcessing} // 處理中禁用
-              style={{ marginRight: "10px" }}>
-                {isProcessing ? "Saving..." : "Save"}
+            > 
+              {isProcessing ? "Saving..." : "Save"}
             </button>
 
             <button 
               onClick={() => setEditSet(null)}
+              style={{ background: "#eee", color: "#333", border: "1px solid #ccc" }}
               disabled={isProcessing}>
                 Cancel
             </button>
@@ -434,15 +437,16 @@ export default function WorkoutHistoryPage(){
             <button
               onClick={() => handleDelete(editSet)}
               disabled={isProcessing} // 處理中禁用
-              style={{
-                marginLeft: "auto",
-                background: isProcessing ? "#ccc" : "red", // 變灰色
-                color: "white",
-                border: "none",
-                padding: "5px 10px",
-                borderRadius: "5px",
-                cursor: isProcessing ? "not-allowed" : "pointer", // 滑鼠變成禁用圖示
-              }}
+              // style={{
+              //   marginLeft: "auto",
+              //   background: isProcessing ? "#ccc" : "red", // 變灰色
+              //   color: "white",
+              //   border: "none",
+              //   padding: "5px 10px",
+              //   borderRadius: "5px",
+              //   cursor: isProcessing ? "not-allowed" : "pointer", // 滑鼠變成禁用圖示
+              // }}
+              style={{ marginLeft: "auto", background: "linear-gradient(to bottom, #ff4d4d, #cc0000)", border: "none",borderRadius: "5px", cursor: isProcessing ? "not-allowed" : "pointer", }}
             >
               {isProcessing ? "Deleting..." : "Delete"}
             </button>
@@ -450,8 +454,8 @@ export default function WorkoutHistoryPage(){
         </div>
       )}
       {isSelectorOpen && (
-        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <div className="modal-content" style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', width: '80%', maxHeight: '70vh', overflowY: 'auto' }}>
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', justifyContent: 'center', alignItems: 'center',backdropFilter: "blur(5px)" }}>
+          <div className="aero-card" style={{ backgroundColor: 'white', padding: '25px', borderRadius: '12px', width: '85%', maxHeight: '70vh', overflowY: 'auto' }}>
             <h3>Select Exercise</h3>
             {allExercises.map(ex => (
               <button 
@@ -460,12 +464,12 @@ export default function WorkoutHistoryPage(){
                   setEditSet({ exercise_id: ex.id, set_number: 1, weight: 0, reps: 0, isNew: true });
                   setIsSelectorOpen(false);
                 }}
-                style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '5px', textAlign: 'left' }}
+                style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '8px', textAlign: 'left', background: "rgba(0, 168, 255, 0.1)", border: "1px solid #00a8ff", borderRadius: "5px", cursor: "pointer" }}
               >
                 {ex.name}
               </button>
             ))}
-            <button onClick={() => setIsSelectorOpen(false)} style={{ marginTop: '10px', width: '100%' }}>Cancel</button>
+            <button onClick={() => setIsSelectorOpen(false)} style={{ marginTop: '10px', width: '100%',background: "#eee", color: "#333" }}>Cancel</button>
           </div>
         </div>
       )}
