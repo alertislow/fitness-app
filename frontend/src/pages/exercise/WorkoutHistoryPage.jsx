@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getWorkoutHistory, updateWorkoutSet, deleteWorkoutSet, saveWorkoutSet } from "../../api/workoutApi.js" // 從後端抓 workout history、更新 set、刪除 set
+import { getWorkoutHistory, updateWorkoutSet, deleteWorkoutSet, saveWorkoutSet, deleteAllSets  } from "../../api/workoutApi.js" // 從後端抓 workout history、更新 set、刪除 set
 // import { getExerciseList } from "../../api/exerciseAPI.js"; // 用來顯示 exercise name
 import { WorkoutSummaryPieChart } from "../../components/WorkoutPieChart.jsx"; // 圖表元件
 import Calendar from 'react-calendar';
@@ -179,6 +179,25 @@ export default function WorkoutHistoryPage(){
     setIsSelectorOpen(true);
   };
 
+  const handleDeleteAllSets = async (exerciseId, selectedDate) => {
+    const exName = exerciseMap[exerciseId] || "該動作";
+    // 使用視窗確認，避免誤點
+    const isConfirmed = window.confirm(`確定要刪除當天所有的「${exName}」記錄嗎？此操作無法還原。`);
+    if (!isConfirmed) return;
+
+    try {
+      // 這裡調刪除全部組數的後端 API，傳入 exerciseId 和 selectedDate（後端會根據這兩個參數刪除該動作的所有組數）
+      await deleteAllSets(exerciseId, selectedDate);
+      // 直接呼叫 getWorkoutHistory 來刷新畫面
+      const refreshRes = await getWorkoutHistory();
+      setHistory(refreshRes.data); 
+      setExpandedExId(null); // 刪除後自動收合
+    } catch (error) {
+      console.error('API 錯誤:', error);
+      alert(`刪除失敗: ${error.message}`);
+    }
+  };
+
   // 獲取日期
   useEffect(() => {
       const fetchActiveDates = async () => {
@@ -341,9 +360,16 @@ export default function WorkoutHistoryPage(){
                             });
                             setIsSelectorOpen(false);
                           }}
-                          style={{ width: "100%", color: "#005a9e", marginTop: "10px", backgroundColor: "rgba(255,255,255,0.2)", border: "1px dashed #00a8ff", borderRadius: "5px" }}
+                          style={{ width: "100%", borderRadius: "5px" }}
                         >
                           + Add Set {sets.length + 1}
+                        </button>
+                        {/* 新增的 刪除整個動作 按鈕 */}
+                        <button 
+                          className="aero-btn-delete-all"
+                          onClick={() => handleDeleteAllSets(exerciseId, selectedDate)}
+                        >
+                          🗑️ 刪除整組記錄 (Delete record)
                         </button>
                     </div>
                     )}
