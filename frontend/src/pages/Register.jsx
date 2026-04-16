@@ -21,27 +21,30 @@ export default function Register() {
     }
   };
   return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
-      <h1>Register</h1>
-      <form onSubmit={handleRegister}>
-        <input
-          type="email"
-          placeholder="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <br /><br />
-        <input
-          type="password"
-          placeholder="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <br /><br />
-        <button type="submit">Register</button>
-      </form>
+    <div style={{ padding: "20px" }}>
+      <button onClick={() => navigate("/login")}>
+        ← Back
+      </button>
+      <div style={{ textAlign: "center", marginTop: "100px" }}>
+          <h1>Register</h1>
+          <form onSubmit={handleRegister}>
+            <input
+              type="email"
+              placeholder="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required />
+            <br /><br />
+            <input
+              type="password"
+              placeholder="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required />
+            <br /><br />
+            <button type="submit">Register</button>
+          </form>
+        </div>
     </div>
   );
 }
