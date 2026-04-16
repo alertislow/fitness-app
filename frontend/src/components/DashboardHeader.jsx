@@ -29,7 +29,7 @@ export default function DashboardHeader() {
       {/* 右側 Avatar 區域 */}
       <div className="avatar-wrapper">
         <div
-          className="user-avatar-btn"
+          className="frutiger-aero-button medium"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           U
