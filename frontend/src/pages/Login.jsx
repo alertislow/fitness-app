@@ -72,7 +72,7 @@ export default function Login() {
       {error && <p style={{ color: "red" }}>{error}</p>}
       
       {/* 提示訊息幫助緩解等待焦慮 */}
-      {isLoading && <p style={{ fontSize: "0.8rem", color: "#666" }}>首次連線可能需要 10 秒啟動，請耐心等待 💪</p>}
+      {isLoading && <p style={{ fontSize: "0.8rem", color: "#666" }}>首次連線可能需要 30 秒啟動，請耐心等待 💪</p>}
     </div>
   );
 }

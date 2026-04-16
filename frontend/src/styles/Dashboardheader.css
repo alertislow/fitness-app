@@ -1,0 +1,105 @@
+/* --- Dashboard Header 專用樣式 --- */
+
+.dashboard-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 25px;
+  
+  /* Aero 玻璃效果 */
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--aero-border) !important;
+  
+  /* 解決被擋住的核心：提升層級並強制顯示溢出內容 */
+  position: relative;
+  z-index: 2000 !important; 
+  overflow: visible !important; 
+}
+
+.avatar-wrapper {
+  position: relative;
+  overflow: visible !important; /* 確保子層選單不被裁切 */
+}
+
+/* 果凍感 Avatar */
+.user-avatar-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7bed9f 0%, #2ed573 50%, #26af5a 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: transform 0.2s;
+}
+
+.user-avatar-btn:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* 下拉選單主體 */
+.settings-dropdown {
+  position: absolute;
+  right: 0;
+  top: 55px; /* 剛好在 Avatar 下方 */
+  width: 160px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--aero-border);
+  border-radius: 12px;
+  box-shadow: var(--win7-shadow);
+  padding: 8px 0;
+  z-index: 9999 !important;
+  animation: aeroFadeIn 0.2s ease-out;
+}
+
+.dropdown-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(to right, rgba(0, 168, 255, 0.1), rgba(0, 168, 255, 0.2));
+  color: #0078d4;
+}
+
+.dropdown-item.logout {
+  color: #d63031;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-item.logout:hover {
+  background: rgba(214, 48, 49, 0.1);
+}
+
+/* 透明點擊層 */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+}
+
+@keyframes aeroFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

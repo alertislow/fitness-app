@@ -1,21 +1,198 @@
 :root {
-  /* 定義一些全域變數，方便統一修改 */
-  --primary-color: #007bff;
+  /* Frutiger Aero 經典調色盤 */
+  --aero-blue: rgba(173, 216, 230, 0.4);
+  /* Aero 邊框主色 */
+  --aero-glass: rgba(255, 255, 255, 0.45);
+  /* 玻璃主體 */
+  --aero-border: rgba(255, 255, 255, 0.6);
+  /* 外邊框亮線 */
+  --primary-color: #00a8ff;
+  --secondary-color: #7bed9f;
+  --bg-gradient: radial-gradient(circle at 50% 50%, #e0f7fa 0%, #80deea 100%);
+  --text-main: #003d33;
+  --win7-shadow: 0 10px 30px rgba(0, 50, 100, 0.3);
 }
 
 * {
   box-sizing: border-box;
-  /* 👈 核心：移除手機瀏覽器點擊時的藍色半透明方塊 */
-  -webkit-tap-highlight-color: transparent; 
-  /* 👈 防止手機版網頁在快速點擊時縮放，讓反應更快 */
-  touch-action: manipulation; 
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: #fcfcfc; /* 配合你的白色基底 */
-  color: #333;
-  /* 👈 讓捲動更順暢（像原生 App 一樣有回彈感） */
-  -webkit-overflow-scrolling: touch; 
+  font-family: 'Segoe UI', 'Frutiger', 'Calibri', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* 增加一點自然的紋理感 */
+  background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
+}
+
+/* --- 背景動態水泡優化 --- */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.1));
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), inset -5px -5px 15px rgba(0, 168, 255, 0.1);
+  z-index: -2;
+  animation: float 20s infinite ease-in-out;
+  filter: blur(2px);
+}
+
+body::before {
+  width: 250px;
+  height: 250px;
+  top: -50px;
+  left: -50px;
+  opacity: 0.6;
+}
+
+body::after {
+  width: 180px;
+  height: 180px;
+  bottom: 10%;
+  right: 5%;
+  animation-delay: -5s;
+  opacity: 0.4;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(40px, -60px) scale(1.1);
+  }
+}
+
+/* --- Windows 7 Aero 透明邊框效果 --- */
+div[style*="border"],
+.dashboard-container>div,
+.history-container>div {
+  background: var(--aero-glass) !important;
+  backdrop-filter: blur(15px) saturate(180%);
+  -webkit-backdrop-filter: blur(15px) saturate(180%);
+
+  /* 關鍵：Aero 雙層邊框與高光 */
+  border: 1px solid var(--aero-border) !important;
+  border-radius: 12px !important;
+
+  /* 外發光 + 內陰影 (模擬玻璃厚度) */
+  box-shadow:
+    var(--win7-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    /* 頂部亮邊 */
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+    /* 底部暗邊 */
+    0 0 0 4px rgba(255, 255, 255, 0.2) !important;
+  /* 外層玻璃光暈 */
+
+  position: relative;
+  overflow: hidden;
+}
+
+/* 模擬 Windows 7 的斜向高光條 */
+div[style*="border"]::before,
+.dashboard-container>div::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* --- 果凍感按鈕 (Glossy Button) --- */
+button {
+  background: linear-gradient(to bottom,
+      #a2e9ff 0%,
+      #00a8ff 45%,
+      #0086cc 50%,
+      #00a8ff 100%) !important;
+  border: 1px solid #005f99 !important;
+  border-radius: 30px !important;
+  color: white !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  padding: 8px 20px !important;
+  box-shadow:
+    0 4px 15px rgba(0, 168, 255, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    /* 頂部高光 */
+    inset 0 -2px 5px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+button:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 168, 255, 0.4), inset 0 1px 1px white !important;
+}
+
+button:active {
+  transform: translateY(1px);
+  filter: brightness(0.9);
+}
+
+/* --- 標題渲染 (Windows 顏色) --- */
+h1,
+h2,
+h3 {
+  color: #005a9e;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 1);
+  letter-spacing: 0.5px;
+}
+
+/* --- 輸入框 --- */
+input {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid #a2e9ff !important;
+  border-radius: 8px !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+input:focus {
+  border-color: #00a8ff !important;
+  box-shadow: 0 0 8px rgba(0, 168, 255, 0.5), inset 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* --- 日曆自定義 (Aero Style) --- */
+.react-calendar {
+  background: var(--aero-glass) !important;
+  backdrop-filter: blur(10px);
+  border: none !important;
+  border-radius: 12px;
+  overflow: hidden;
+  color: var(--text-main);
+}
+
+.react-calendar__tile--active {
+  background: linear-gradient(to bottom, #7bed9f, #2ed573) !important;
+  border-radius: 6px;
+  color: white !important;
+}
+
+/* --- 捲軸美化 --- */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to right, #a2e9ff, #00a8ff);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }

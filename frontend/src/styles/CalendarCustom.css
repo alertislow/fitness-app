@@ -4,22 +4,101 @@
   width: 100% !important;
   max-width: 100% !important; 
   margin: 0 auto;
-  background-color: #ffffff !important;
-  color: #333333 !important;
-  border: 1px solid #eeeeee !important; /* 外框線 */
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+  /* color: #333333 !important; */
+  border: none !important; 
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  font-family: inherit;
+  box-shadow: 0 10px 30px rgba(0, 50, 100, 0.15) !important;
 }
 
 /* 1. 頂部導航列 */
 .react-calendar__navigation {
-  background-color: #ffffff !important;
-  border-bottom: 1px solid #eeeeee; /* 導航下方的分割線 */
-  padding: 15px 0;
+  margin-top: 0 !important;
+  display: flex !important;
+  height: 45px !important; /* 固定高度 */
+  background: linear-gradient(to bottom, #00a8ff, #007cc0) !important;
+  /*border-bottom: 1px solid #eeeeee; /* 導航下方的分割線 */
+  padding: 2px 5px !important;
+  border-radius: 12px 12px 0 0;
   margin-bottom: 0 !important;
 }
+/* 2. 導覽按鈕 (<<, <, >, >>)：重置預設樣式 */
+.react-calendar__navigation button {
+  min-width: 35px !important;
+  height: 35px !important;
+  background: rgba(255, 255, 255, 0.2) !important; /* 半透明玻璃感 */
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 6px !important; /* 改為較小的圓角，更像 Win7 視窗按鈕 */
+  color: white !important;
+  font-size: 1.2rem !important;
+  margin: 2px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important; /* 內部亮邊 */
+  transition: all 0.2s;
+}
+/* 移除全域按鈕可能帶來的偏移與陰影 */
+.react-calendar__navigation button:hover,
+.react-calendar__navigation button:focus {
+  background: rgba(255, 255, 255, 0.4) !important;
+  transform: none !important; /* 防止導覽按鈕跳動 */
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5) !important;
+}
+.react-calendar__navigation button:disabled {
+  background: transparent !important;
+  opacity: 0.3;
+}
+
+/* 讓當前年月標題更明顯 */
+.react-calendar__navigation__label {
+  flex-grow: 1 !important;
+  background: transparent !important; /* 標題不需要背景 */
+  border: none !important;
+  box-shadow: none !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+  cursor: default !important;
+  pointer-events: none; /* 防止誤點標題切換檢視模式 */
+}
+/* 修正截圖中出現的白色小橢圓（如果有特定的 span 層級） */
+.react-calendar__navigation__label__textContent {
+  color: white !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 自定義 Aero 卡片類名 */
+.aero-card {
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(15px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 50, 100, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+/* 大 + 號按鈕樣式 */
+.big-plus-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50% !important;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
+  background: linear-gradient(to bottom, #7bed9f, #2ed573) !important;
+}
+
+/* 返回按鈕微調 */
+.aero-back-btn {
+  padding: 8px 15px !important;
+  font-size: 0.9rem;
+}
+
 
 /* 2. 星期幾標籤 */
 .react-calendar__month-view__weekdays {
@@ -33,6 +112,8 @@
   text-decoration: none !important;
   padding: 12px 0;
 }
+
+
 
 /* 3. 核心修改：加入日期網格分割線 */
 .react-calendar__tile {
@@ -115,5 +196,66 @@
 
 /* 9. 懸停效果 */
 .react-calendar__tile:enabled:hover {
-  background-color: #f8f9fa !important;
+  background-color: #4192e37b !important;
+}
+
+/* 藍色 Aero 新增按鈕 */
+.add-set-btn{
+  color: #005a9e;
+  margin-top: 10px;
+  background-color: rgba(255,255,255,0.2);
+  border: 1px dashed #00a8ff;
+}
+/* 紅色 Aero 刪除按鈕 */
+.aero-btn-delete {
+  background: linear-gradient(to bottom, #ff4d4d, #cc0000) !important;
+  color: white !important;
+  border: 1px solid #900 !important;
+  border-radius: 20px !important; /* 保持藥丸形狀 */
+  padding: 5px 20px !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.4), 
+    0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+}
+
+.aero-btn-delete:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #ff6666, #dd0000) !important;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.5) !important;
+}
+
+.aero-btn-delete:disabled {
+  background: #ccc !important;
+  cursor: not-allowed !important;
+  border-color: #999 !important;
+}
+
+/* 紅色 Aero 刪除全部組數按鈕 */
+.aero-btn-delete-all {
+  background: linear-gradient(to bottom, #ff5f5f, #cc0000) !important;
+  color: white !important;
+  border: 1px solid #900 !important;
+  border-radius: 20px !important;
+  padding: 8px 20px !important;
+  width: 100%; /* 讓它跟 Add Set 按鈕一樣寬 */
+  margin-top: 10px; /* 與上方按鈕保持間距 */
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.4), 
+    0 2px 5px rgba(0, 0, 0, 0.3) !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.aero-btn-delete-all:hover {
+  background: linear-gradient(to bottom, #ff7b7b, #e60000) !important;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.4) !important;
+}
+
+.aero-btn-delete-all:active {
+  transform: translateY(1px);
+  background: #aa0000 !important;
 }

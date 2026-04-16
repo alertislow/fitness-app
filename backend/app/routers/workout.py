@@ -7,7 +7,7 @@ from app.schemas import WorkoutCreate, WorkoutUpdate
 from app.models import WorkoutHistory
 from app.core.security import get_current_user_id # JWT function
 from typing import List
-
+from app.routers.exercise import get_exercise # 使用 exercise_id 來執行整組動作刪除
 
 router = APIRouter(prefix="/workout",tags=["workout"])
 
@@ -131,3 +131,36 @@ def delete_set(id: int, db: Session = Depends(get_db)):
 
     return {"status": "deleted"}
 
+# DELETE /workout/set/deleteAll/{exercise_id}
+@router.delete("/set/deleteAll/{exercise_id}")
+def delete_all_sets_by_date(
+    exercise_id: int, 
+    date: str, 
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id) # 加入 JWT 驗證
+):
+    # 1. 處理日期格式 (相容 "2026-04-15" 與 "2026/04/15")
+    date_str = date.replace('-', '/')
+    try:
+        base_date = datetime.strptime(date_str, "%Y/%m/%d")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="日期格式錯誤")
+
+    # 2. 定義該日期的起迄時間 (00:00:00 ~ 23:59:59)
+    start_of_day = base_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_day = start_of_day + timedelta(days=1)
+
+    # 3. 執行刪除：加上 user_id 條件，並搜尋時間範圍
+    deleted_rows = db.query(WorkoutHistory).filter(
+        WorkoutHistory.user_id == current_user_id,
+        WorkoutHistory.exercise_id == exercise_id,
+        WorkoutHistory.date >= start_of_day,
+        WorkoutHistory.date < end_of_day
+    ).delete()
+    
+    db.commit()
+    
+    if deleted_rows == 0:
+        raise HTTPException(status_code=404, detail="找不到對應的紀錄")
+        
+    return {"message": f"已刪除 {deleted_rows} 筆組數紀錄"}

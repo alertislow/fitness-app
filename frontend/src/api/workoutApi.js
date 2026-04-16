@@ -54,7 +54,7 @@ export async function updateWorkoutSet(id,data){
 
   return res.json()
 }
-// 刪除訓練紀錄的 API 呼叫
+// 刪除單一訓練紀錄的 API 呼叫
 export async function deleteWorkoutSet(id){
   const token = localStorage.getItem("token")
   if(!token){
@@ -66,8 +66,29 @@ export async function deleteWorkoutSet(id){
     "Authorization":`Bearer ${token}`
     }
   })
-  if (!res.ok) throw new Error("Request failed")
-  
+  if (!res.ok) throw new Error("刪除單組紀錄失敗")
+  return res.json()
+}
+
+// 刪除整個動作全部組數的 API 呼叫
+export async function deleteAllSets(exerciseId, date){
+  const token = localStorage.getItem("token")
+  if(!token){
+    throw new Error("No token")
+  }
+  // 使用 encodeURIComponent 處理日期字串，避免 2026/04/15 的斜線搞亂 URL 路徑
+  const safeDate = encodeURIComponent(date);
+ // 改為 Query Parameter 的寫法： ?date=...
+  const res = await fetch(`${API_BASE_URL}/workout/set/deleteAll/${exerciseId}?date=${safeDate}`,{
+    method:"DELETE",
+    headers:{
+    "Authorization":`Bearer ${token}`
+    }
+  })
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || "刪除整組動作紀錄失敗");
+  }
   return res.json()
 }
 
