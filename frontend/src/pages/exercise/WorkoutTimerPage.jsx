@@ -34,6 +34,7 @@ export default function WorkoutTimerPage(){
   const endTimeRef = useRef(null); // 絕對目標結束時間
   const audioCtxRef = useRef(null); // Web Audio 上下文
   const silentNodeRef = useRef(null); // 無聲脈衝節點
+  const isTransitioningRef = useRef(false); // 防止重複觸發切換的開關
 
   // 使用者全域設定：是否跳過最後一組休息
   const userSettings = JSON.parse(localStorage.getItem("user_settings")) || {};  
@@ -48,40 +49,24 @@ export default function WorkoutTimerPage(){
     finish: new Audio(finishSound)
   }), []);
 
-  // --- 初始化通知權限 ---
-  useEffect(() => {
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-  }, []);
-
-  // --- 核心：Web Audio 無聲脈衝引擎 (防止背景睡著) ---
-  const startSilentEngine = () => {
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtxRef.current.state === "suspended") {
-      audioCtxRef.current.resume();
-    }
-    // 每秒播放一個 0.001 秒的極低增益無聲音訊
-    const playPulse = () => {
-      const oscillator = audioCtxRef.current.createOscillator();
-      const gainNode = audioCtxRef.current.createGain();
-      gainNode.gain.value = 0.00001; // 幾近無聲
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtxRef.current.destination);
-      oscillator.start();
-      oscillator.stop(audioCtxRef.current.currentTime + 0.001);
-    };
-    if (!silentNodeRef.current) {
-      silentNodeRef.current = setInterval(playPulse, 1000);
-    }
+  const handleFinishSet = (setData) => {
+    setCompletedSets(prev => [
+      ...prev,
+      {
+        exercise_id: Number(exerciseId),
+        reps: setData.reps,
+        weight: setData.weight
+      }
+    ]);
   };
-
-  const stopSilentEngine = () => {
-    if (silentNodeRef.current) {
-      clearInterval(silentNodeRef.current);
-      silentNodeRef.current = null;
+  const handleFinishWorkout = async () => {
+    try {
+      if (completedSets.length > 0) {
+        await saveWorkoutSet(completedSets); //  傳整個 array
+        setCompletedSets([]); // 清空
+      }
+    } catch (err) {
+      console.error("存儲 workout 失敗:", err);
     }
   };
 
@@ -97,61 +82,50 @@ export default function WorkoutTimerPage(){
     }
   };
 
+  // --- 核心：Web Audio 無聲脈衝引擎 (防止背景睡著) ---
+  const startSilentEngine = () => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+    // 每秒播放一個 0.001 秒的極低增益無聲音訊
+    const playPulse = () => {
+      const osc = audioCtxRef.current.createOscillator();
+      const gain = audioCtxRef.current.createGain();
+      gain.gain.value = 0.00001;
+      osc.connect(gain);
+      gain.connect(audioCtxRef.current.destination);
+      osc.start();
+      osc.stop(audioCtxRef.current.currentTime + 0.001);
+    };
+    if (!silentNodeRef.current) {
+      silentNodeRef.current = setInterval(playPulse, 1000);
+    }
+  };
+
+  const stopSilentEngine = () => {
+    if (silentNodeRef.current) {
+      clearInterval(silentNodeRef.current);
+      silentNodeRef.current = null;
+    }
+  };
+
   // 更新 endTimeRef，準確執行背景計時
   const startNewPhase = (duration, phaseName) => {
     const targetTime = Date.now() + duration * 1000;
     endTimeRef.current = targetTime;
     setTimeLeft(duration);
+    isTransitioningRef.current = false; // 開啟開關，允許下一次切換
     sendPhaseNotification(phaseName, targetTime);
   };
 
-  // --- 初始化計時 ---
-  useEffect(() => {
-    startNewPhase(3, "prepare");
-    startSilentEngine(); // 開始時啟動引擎
-    return () => stopSilentEngine();
-  }, []);
+   // 階段轉換邏輯
+  const handleNextPhase = () => {
+    if (isTransitioningRef.current) return; // 如果正在切換中，直接擋掉
+    isTransitioningRef.current = true; // 鎖上開關
 
-  // --- 主計時邏輯 (時間補償演算法) ---
-  useEffect(() => {
-    if (isPaused || phase === "done") return;
-
-    const tick = () => {
-      const now = Date.now();
-      const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
-
-      // 檢查 Tik-Tik 聲觸發 (最後 5 秒，每秒觸發一次)
-      if (remaining <= 5 && remaining > 0 && remaining !== timeLeft) {
-        sounds.tick.play().catch(() => {}); // catch 避免瀏覽器限制報錯
-      }
-
-      if (remaining <= 0 && timeLeft !== 0) {
-        handleNextPhase();
-      } else {
-        setTimeLeft(remaining);
-      }
-    };
-
-    const timer = setInterval(tick, 500); // 高頻檢查確保準確
-    return () => clearInterval(timer);
-  }, [phase, isPaused, timeLeft]);
-
-  // --- 處理視窗喚醒 (回到前台立即同步) ---
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && endTimeRef.current && !isPaused) {
-        const now = Date.now();
-        const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
-        setTimeLeft(remaining);
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isPaused]);
-
-
-  // 階段轉換邏輯
-  function handleNextPhase(){
     if(phase==="prepare"){
       sounds.start.play();
       setPhase("work");
@@ -164,31 +138,79 @@ export default function WorkoutTimerPage(){
         setPhase("done"); // 直接結束，不進 rest
         sounds.finish.play();
         stopSilentEngine();
-        return;
+      } else {
+        sounds.rest.play()
+        setPhase("rest")
+        startNewPhase(restTime, "rest");
       }
-      sounds.rest.play()
-      setPhase("rest")
-      startNewPhase(restTime, "rest");
     } else if(phase==="rest"){
       // 正常 rest 結束，進下一組
       if(currentSet>=totalSets){
         setPhase("done")
         sounds.finish.play();
         stopSilentEngine();
-        return;
+      } else {
+         // 其他組休息結束，進入下一組
+        sounds.start.play()
+        setCurrentSet(prev => prev + 1)
+        setPhase("work")
+        startNewPhase(workTime, "work");
       }
-      // 其他組休息結束，進入下一組
-      sounds.start.play()
-      setCurrentSet(prev => prev + 1)
-      setPhase("work")
-      startNewPhase(workTime, "work");
     }
-  }
+  };
+
+  // --- 生命週期 ---
+  useEffect(() => {
+    // --- 初始化通知權限 ---
+    if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
+    // --- 初始化計時 ---
+    startNewPhase(3, "prepare");
+    startSilentEngine(); // 開始時啟動引擎
+    return () => stopSilentEngine();
+  }, []);
+
+
+  // --- 主計時邏輯 (時間補償演算法) ---
+  useEffect(() => {
+    if (isPaused || phase === "done") return;
+    const tick = () => {
+      const now = Date.now();
+      const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
+
+      // 檢查 Tik-Tik 聲觸發 (最後 5 秒，每秒觸發一次)
+      if (remaining <= 5 && remaining > 0 && remaining !== timeLeft) {
+        sounds.tick.play().catch(() => {}); // catch 避免瀏覽器限制報錯
+      }
+
+      if (remaining <= 0 && !isTransitioningRef.current) {
+        handleNextPhase();
+      } else {
+        setTimeLeft(remaining);
+      }
+    };
+
+    const timer = setInterval(tick, 500); // 高頻檢查確保準確
+    return () => clearInterval(timer);
+  }, [phase, isPaused, timeLeft, currentSet]);
+
+  // --- 處理視窗喚醒 (回到前台立即同步) ---
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && endTimeRef.current && !isPaused) {
+        setTimeLeft(Math.max(0, Math.ceil((endTimeRef.current - Date.now()) / 1000)));
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isPaused]);
+
+
+  
   // --- 暫停切換 ---
   const togglePause = () => {
     if (!isPaused) {
       // 紀錄暫停時還剩幾秒
-      const remaining = endTimeRef.current - Date.now();
+      const remainingMs = endTimeRef.current - Date.now();
       endTimeRef.current = remainingMs; // 暫時存剩餘毫秒數
       stopSilentEngine();
     } else {
@@ -198,6 +220,15 @@ export default function WorkoutTimerPage(){
       sendPhaseNotification(phase, endTimeRef.current);
     }
     setIsPaused(!isPaused);
+  };
+
+  // --- 重新倒數功能 (<<) ---
+  const resetCurrentPhase = () => {
+    isTransitioningRef.current = false;
+    const duration = phase === "prepare" ? 3 : (phase === "work" ? workTime : restTime);
+    startNewPhase(duration, phase);
+    setIsPaused(false);
+    startSilentEngine();
   };
 
   // --- 計算當前階段總時長 (供圓圈進度計算) ---
@@ -231,33 +262,6 @@ export default function WorkoutTimerPage(){
       .catch(err => console.error(err));
   }, [exerciseId, token, navigate]);
 
-  const handleFinishSet = (setData) => {
-    setCompletedSets(prev => [
-      ...prev,
-      {
-        exercise_id: Number(exerciseId),
-        reps: setData.reps,
-        weight: setData.weight
-      }
-    ]);
-  };
-  const handleFinishWorkout = async () => {
-    try {
-      if (completedSets.length > 0) {
-        await saveWorkoutSet(completedSets); //  傳整個 array
-        setCompletedSets([]); // 清空
-      }
-    } catch (err) {
-      console.error("存儲 workout 失敗:", err);
-    }
-  };
-
-  // --- 重新倒數功能 (<<) ---
-  const resetCurrentPhase = () => {
-    setTimeLeft(totalPhaseTime, phase);
-    setIsPaused(false);
-    startSilentEngine();
-  };
 
   async function endWorkout(){
     stopSilentEngine();
