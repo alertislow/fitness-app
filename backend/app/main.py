@@ -26,6 +26,7 @@ app.add_middleware(
         "http://127.0.0.1:5174",
         "https://fitness-app-drab-nine.vercel.app"
     ],
+    allow_origin_regex=r"https://fitness-.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
