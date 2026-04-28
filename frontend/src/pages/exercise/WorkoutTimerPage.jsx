@@ -72,13 +72,17 @@ export default function WorkoutTimerPage(){
 
   // --- 階段切換與通知邏輯 ---
   const sendPhaseNotification = (currentPhase, endTimestamp) => {
-    if (Notification.permission === "granted") {
+    if ("Notification" in window && Notification.permission === "granted") {
       const timeStr = new Date(endTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      new Notification("健身計時器", {
-        body: `${currentPhase.toUpperCase()} 進行中，將於 ${timeStr} 結束`,
-        tag: "workout-timer",
-        silent: true // 避免通知聲干擾音樂，我們使用自定義音效
-      });
+      try {
+        new Notification("健身計時器", {
+          body: `${currentPhase.toUpperCase()} 進行中，將於 ${timeStr} 結束`,
+          tag: "workout-timer",
+          silent: true // 避免通知聲干擾音樂，我們使用自定義音效
+        });
+      } catch (e) {
+      console.error("通知發送失敗", e);
+      }
     }
   };
 
