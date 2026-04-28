@@ -30,6 +30,10 @@ export default function WorkoutTimerPage(){
   const [isPaused, setIsPaused] = useState(false); // 暫停狀態
   const [completedSets, setCompletedSets] = useState([]); // 儲存已完成的 sets，後續再一起call API 儲存到後端，而不是每組work都送一次 API（這樣效能更好）
 
+  // --- Refs 用於時間補償 ---
+  const endTimeRef = useRef(null); // 紀錄當前階段應該何時結束
+  const pausedTimeLeftRef = useRef(null); // 暫停時剩餘的秒數
+
   // 使用者全域設定：是否跳過最後一組休息
   const userSettings = JSON.parse(localStorage.getItem("user_settings")) || {};  
   const skipLastRest = userSettings.skipLastRest ?? true;
