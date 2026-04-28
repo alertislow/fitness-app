@@ -21,6 +21,9 @@ app.add_middleware(
     # 如果 allow_credentials 設定為 True，則 allow_origins 不能使用通配符 *必須明確寫出網址
     allow_origins=[
         "http://localhost:5173", 
+        "http://localhost:5174", 
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
         "https://fitness-app-drab-nine.vercel.app"
     ],
     allow_credentials=True,
