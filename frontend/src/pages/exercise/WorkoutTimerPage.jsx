@@ -162,10 +162,10 @@ export default function WorkoutTimerPage(){
   // --- 生命週期 ---
   useEffect(() => {
     // --- 初始化通知權限 ---
-    if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
+    // if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
     // --- 初始化計時 ---
     startNewPhase(3, "prepare");
-    startSilentEngine(); // 開始時啟動引擎
+   // startSilentEngine(); // 開始時啟動引擎
     return () => stopSilentEngine();
   }, []);
 
@@ -216,7 +216,7 @@ export default function WorkoutTimerPage(){
     } else {
       // 恢復時，重新計算結束時間戳
       endTimeRef.current = Date.now() + endTimeRef.current;
-      startSilentEngine();
+      //startSilentEngine();
       sendPhaseNotification(phase, endTimeRef.current);
     }
     setIsPaused(!isPaused);
@@ -228,7 +228,7 @@ export default function WorkoutTimerPage(){
     const duration = phase === "prepare" ? 3 : (phase === "work" ? workTime : restTime);
     startNewPhase(duration, phase);
     setIsPaused(false);
-    startSilentEngine();
+    //startSilentEngine();
   };
 
   // --- 計算當前階段總時長 (供圓圈進度計算) ---
