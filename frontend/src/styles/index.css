@@ -20,7 +20,8 @@
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', 'Frutiger', 'Calibri', 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    "Segoe UI", "Frutiger", "Calibri", "Helvetica Neue", Arial, sans-serif;
   background: var(--bg-gradient);
   background-attachment: fixed;
   color: var(--text-main);
@@ -33,11 +34,17 @@ body {
 /* --- 背景動態水泡優化 --- */
 body::before,
 body::after {
-  content: '';
+  content: "";
   position: fixed;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.1));
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), inset -5px -5px 15px rgba(0, 168, 255, 0.1);
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.1)
+  );
+  box-shadow:
+    0 0 20px rgba(255, 255, 255, 0.6),
+    inset -5px -5px 15px rgba(0, 168, 255, 0.1);
   z-index: -2;
   animation: float 20s infinite ease-in-out;
   filter: blur(2px);
@@ -61,7 +68,6 @@ body::after {
 }
 
 @keyframes float {
-
   0%,
   100% {
     transform: translate(0, 0) scale(1);
@@ -74,8 +80,8 @@ body::after {
 
 /* --- Windows 7 Aero 透明邊框效果 --- */
 div[style*="border"],
-.dashboard-container>div,
-.history-container>div {
+.dashboard-container > div,
+.history-container > div {
   background: var(--aero-glass) !important;
   backdrop-filter: blur(15px) saturate(180%);
   -webkit-backdrop-filter: blur(15px) saturate(180%);
@@ -88,10 +94,8 @@ div[style*="border"],
   box-shadow:
     var(--win7-shadow),
     inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    /* 頂部亮邊 */
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1),
-    /* 底部暗邊 */
-    0 0 0 4px rgba(255, 255, 255, 0.2) !important;
+    /* 頂部亮邊 */ inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+    /* 底部暗邊 */ 0 0 0 4px rgba(255, 255, 255, 0.2) !important;
   /* 外層玻璃光暈 */
 
   position: relative;
@@ -100,25 +104,31 @@ div[style*="border"],
 
 /* 模擬 Windows 7 的斜向高光條 */
 div[style*="border"]::before,
-.dashboard-container>div::before {
+.dashboard-container > div::before {
   content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0) 50%
+  );
   pointer-events: none;
   z-index: 1;
 }
 
 /* --- 果凍感按鈕 (Glossy Button) --- */
 button {
-  background: linear-gradient(to bottom,
-      #a2e9ff 0%,
-      #00a8ff 45%,
-      #0086cc 50%,
-      #00a8ff 100%) !important;
+  background: linear-gradient(
+    to bottom,
+    #a2e9ff 0%,
+    #00a8ff 45%,
+    #0086cc 50%,
+    #00a8ff 100%
+  ) !important;
   border: 1px solid #005f99 !important;
   border-radius: 30px !important;
   color: white !important;
@@ -128,15 +138,16 @@ button {
   box-shadow:
     0 4px 15px rgba(0, 168, 255, 0.3),
     inset 0 1px 1px rgba(255, 255, 255, 0.8),
-    /* 頂部高光 */
-    inset 0 -2px 5px rgba(0, 0, 0, 0.2) !important;
+    /* 頂部高光 */ inset 0 -2px 5px rgba(0, 0, 0, 0.2) !important;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 button:hover {
   filter: brightness(1.1);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 168, 255, 0.4), inset 0 1px 1px white !important;
+  box-shadow:
+    0 6px 20px rgba(0, 168, 255, 0.4),
+    inset 0 1px 1px white !important;
 }
 
 button:active {
@@ -155,15 +166,28 @@ h3 {
 
 /* --- 輸入框 --- */
 input {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid #a2e9ff !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--aero-border) !important;
   border-radius: 8px !important;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  padding: 10px 15px !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  font-size: 16px !important;
+  transition: all 0.3s ease;
 }
 
 input:focus {
-  border-color: #00a8ff !important;
-  box-shadow: 0 0 8px rgba(0, 168, 255, 0.5), inset 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow:
+    0 0 0 3px rgba(0, 168, 255, 0.2),
+    inset 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+input::placeholder {
+  color: rgba(0, 61, 51, 0.4); /* 用你的 --text-main 顏色加上透明度 */
+  font-style: italic;
+  font-size: 0.9rem;
 }
 
 /* --- 日曆自定義 (Aero Style) --- */
